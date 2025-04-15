@@ -4,6 +4,10 @@
     "check": "deno fmt --check && deno lint && deno check **/*.ts && deno check **/*.tsx",
     "cli": "echo \"import '\\$fresh/src/dev/cli.ts'\" | deno run --unstable -A -",
     "manifest": "deno task cli manifest $(pwd)",
+    "drizzle-kit": "deno run -A npm:drizzle-kit@beta",
+	"migrate": "deno run -A npm:drizzle-kit@beta migrate",
+    "migrate:generate": "deno run -A npm:drizzle-kit@beta generate",
+    "migrate:test": "deno run --env-file=.env.test -A npm:drizzle-kit@beta migrate",
     "start": "deno run -A --watch=static/,routes/ dev.ts",
     "build": "deno run -A dev.ts build",
     "preview": "deno run -A main.ts",
@@ -18,7 +22,11 @@
     }
   },
   "exclude": [
-    "**/_fresh/*"
+    "**/_fresh/*",
+    ".github/",
+    "drizzle/",
+    "node_modules/",
+    "static/"
   ],
   "imports": {
     "$fresh/": "https://deno.land/x/fresh@1.6.8/",
@@ -31,12 +39,12 @@
     "preact/": "https://esm.sh/preact@10.19.6/",
     "@preact/signals": "https://esm.sh/*@preact/signals@1.2.2",
     "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.5.1",
+	"drizzle-kit": "npm:drizzle-kit@beta",
+    "drizzle-orm": "npm:drizzle-orm@beta",
     "tailwindcss": "npm:tailwindcss@3.4.1",
     "tailwindcss/": "npm:/tailwindcss@3.4.1/",
     "tailwindcss/plugin": "npm:/tailwindcss@3.4.1/plugin.js",
     "$std/": "https://deno.land/std@0.216.0/",
-    "drizzle-orm/": "npm:drizzle-orm@0.30.7/",
-    "drizzle-orm": "npm:drizzle-orm@0.30.7",
     "pg": "npm:pg@8.11.3"
   },
   "compilerOptions": {
