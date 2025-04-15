@@ -1,5 +1,5 @@
 import { Handlers } from "$fresh/server.ts";
-import federation from "../../../federation/mod.ts";
+import federation from "../../federation/mod.ts";
 
 export const handler: Handlers = {
   async POST(req, ctx) {
