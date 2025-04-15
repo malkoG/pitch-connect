@@ -27,4 +27,15 @@ federation.setActorDispatcher("/users/{identifier}", async (ctx, identifier) => 
   });
 });
 
+federation.onActivity("Follow", async (activity, ctx) => {
+  const follower = activity.actor;
+  const target = activity.object;
+
+  console.log(`[Follow] ${follower} → ${target}`);
+
+  // Optional: add database logic here to store the following relationship
+
+  await ctx.accept(activity); // automatically send Accept response to remote inbox
+});
+
 export default federation;
