@@ -34,7 +34,10 @@
     "tailwindcss": "npm:tailwindcss@3.4.1",
     "tailwindcss/": "npm:/tailwindcss@3.4.1/",
     "tailwindcss/plugin": "npm:/tailwindcss@3.4.1/plugin.js",
-    "$std/": "https://deno.land/std@0.216.0/"
+    "$std/": "https://deno.land/std@0.216.0/",
+    "drizzle-orm/": "npm:drizzle-orm@0.30.7/",
+    "drizzle-orm": "npm:drizzle-orm@0.30.7",
+    "pg": "npm:pg@8.11.3"
   },
   "compilerOptions": {
     "jsx": "react-jsx",
