@@ -1,0 +1,6 @@
+.git
+.github
+.vscode
+.env
+node_modules
+_fresh
