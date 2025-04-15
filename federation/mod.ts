@@ -38,4 +38,18 @@ federation.onActivity("Follow", async (activity, ctx) => {
   await ctx.accept(activity); // automatically send Accept response to remote inbox
 });
 
+const originalReceive = federation.receive.bind(federation);
+federation.receive = async function (activity, ctx) {
+  if (activity.type === "Follow") {
+    const follower = activity.actor;
+    const target = activity.object;
+    logger.info(`[Follow] ${follower} → ${target}`);
+
+    // Optional: add database logic here to store the following relationship
+
+    await ctx.accept(activity);
+  }
+  return await originalReceive(activity, ctx);
+};
+
 export default federation;
