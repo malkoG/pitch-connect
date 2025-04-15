@@ -2,24 +2,40 @@
 // This file SHOULD be checked into source version control.
 // This file is automatically updated during development when running `dev.ts`.
 
+import * as $_well_known_webfinger from "./routes/.well-known/webfinger.ts";
+import * as $_username_inbox from "./routes/@[username]/inbox.ts";
+import * as $_username_index from "./routes/@[username]/index.ts";
+import * as $_username_outbox from "./routes/@[username]/outbox.ts";
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
+import * as $_middleware from "./routes/_middleware.ts";
 import * as $api_joke from "./routes/api/joke.ts";
+import * as $api_posts from "./routes/api/posts.ts";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
 import * as $Counter from "./islands/Counter.tsx";
+import * as $PostForm from "./islands/PostForm.tsx";
+import * as $PostList from "./islands/PostList.tsx";
 import { type Manifest } from "$fresh/server.ts";
 
 const manifest = {
   routes: {
+    "./routes/.well-known/webfinger.ts": $_well_known_webfinger,
+    "./routes/@[username]/inbox.ts": $_username_inbox,
+    "./routes/@[username]/index.ts": $_username_index,
+    "./routes/@[username]/outbox.ts": $_username_outbox,
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
+    "./routes/_middleware.ts": $_middleware,
     "./routes/api/joke.ts": $api_joke,
+    "./routes/api/posts.ts": $api_posts,
     "./routes/greet/[name].tsx": $greet_name_,
     "./routes/index.tsx": $index,
   },
   islands: {
     "./islands/Counter.tsx": $Counter,
+    "./islands/PostForm.tsx": $PostForm,
+    "./islands/PostList.tsx": $PostList,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;

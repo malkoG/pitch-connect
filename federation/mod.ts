@@ -13,32 +13,25 @@ const federation = createFederation({
   queue: new PostgresMessageQueue(postgres(Deno.env.get("DATABASE_URL"))),
 });
 
-federation.setActorDispatcher("/users/{identifier}", async (ctx, identifier) => {
-  const [actor] = await db.select().from(actors).where(eq(actors.preferredUsername, identifier));
-  if (!actor) return null;
+federation.setActorDispatcher(
+  "/users/{identifier}",
+  async (ctx, identifier) => {
+    const [actor] = await db.select().from(actors).where(
+      eq(actors.preferredUsername, identifier),
+    );
+    if (!actor) return null;
 
-  return new Person({
-    id: ctx.getActorUri(identifier),
-    preferredUsername: actor.preferredUsername,
-    name: actor.name ?? actor.preferredUsername,
-    inbox: actor.inbox,
-    outbox: actor.outbox,
-    summary: actor.summary,
-  });
-});
+    return new Person({
+      id: ctx.getActorUri(identifier),
+      preferredUsername: actor.preferredUsername,
+      name: actor.name ?? actor.preferredUsername,
+      inbox: actor.inbox,
+      outbox: actor.outbox,
+      summary: actor.summary,
+    });
+  },
+);
 
-federation.onActivity("Follow", async (activity, ctx) => {
-  const follower = activity.actor;
-  const target = activity.object;
-
-  console.log(`[Follow] ${follower} → ${target}`);
-
-  // Optional: add database logic here to store the following relationship
-
-  await ctx.accept(activity); // automatically send Accept response to remote inbox
-});
-
-const originalReceive = federation.receive.bind(federation);
 federation.receive = async function (activity, ctx) {
   if (activity.type === "Follow") {
     const follower = activity.actor;
@@ -49,7 +42,6 @@ federation.receive = async function (activity, ctx) {
 
     await ctx.accept(activity);
   }
-  return await originalReceive(activity, ctx);
 };
 
 export default federation;
