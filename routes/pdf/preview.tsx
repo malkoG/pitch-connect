@@ -1,5 +1,3 @@
-/** @jsx h */
-import { h } from "preact";
 import { PageProps } from "$fresh/server.ts";
 import PdfViewerWithButtons from "../../components/PdfViewerWithButtons.tsx";
 

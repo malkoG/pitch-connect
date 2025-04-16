@@ -1,5 +1,3 @@
-/** @jsx h */
-import { h } from "preact";
 import { useState, useEffect, useRef, useCallback } from "preact/hooks";
 import * as pdfjsLib from "npm:pdfjs-dist/build/pdf.js";
 
