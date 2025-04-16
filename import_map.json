@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "pdfjs-dist/": "npm:pdfjs-dist@",
+    "pdfjs-dist/build/pdf.js": "npm:pdfjs-dist/build/pdf.js",
+    "pdfjs-dist/build/pdf.worker.entry.js": "npm:pdfjs-dist/build/pdf.worker.entry.js"
+  }
+}

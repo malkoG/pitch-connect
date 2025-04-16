@@ -1,17 +1,11 @@
 /** @jsx h */
 import { h } from "preact";
 import { useState, useEffect, useRef, useCallback } from "preact/hooks";
-// Note: Ensure pdfjs-dist is correctly mapped in import_map.json or use npm: specifier if supported
 import * as pdfjsLib from "pdfjs-dist/build/pdf.js";
-import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry.js";
 
 // --- PDF.js Worker Setup ---
-// We need to ensure the workerSrc points to a path accessible by the browser.
-// This might require copying the worker file to the static directory.
-// We'll set this dynamically based on where we place the worker file later.
-// pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker; // Original - might not work directly
-// Initial setup assuming worker will be at /pdf.worker.entry.js
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.entry.js';
+// Set the worker source to the CDN version
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
 
 interface PdfViewerProps {
   pdfUrl: string;
