@@ -1,7 +1,7 @@
 /** @jsx h */
 import { h } from "preact";
 import { useState, useEffect, useRef, useCallback } from "preact/hooks";
-import * as pdfjsLib from "pdfjs-dist/build/pdf.js";
+import * as pdfjsLib from "npm:pdfjs-dist/build/pdf.js";
 
 // --- PDF.js Worker Setup ---
 // Set the worker source to the CDN version
