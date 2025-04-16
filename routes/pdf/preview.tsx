@@ -1,10 +1,11 @@
 import { PageProps } from "$fresh/server.ts";
-import PdfViewerWithButtons from "../../components/PdfViewerWithButtons.tsx";
+import PdfViewerWithButtons from "../../islands/PdfViewerWithButtons.tsx";
 
 export default function PdfPreviewPage(props: PageProps) {
   // Extract PDF URL from query parameters
   const url = new URL(props.url);
-  const pdfUrl = url.searchParams.get("url");
+  // const pdfUrl = url.searchParams.get("url");
+  const pdfUrl = "https://handbook.duolingo.com"
 
   return (
     <div class="p-4 mx-auto max-w-screen-lg">
