@@ -12,15 +12,22 @@ export const handler: Handlers = {
       return new Response("Bad Request: Resource must start with 'acct:'", { status: 400 });
     }
 
-    // Extract username from acct:username@domain
+    // Extract username and domain from acct:username@domain
     const parts = resource.replace("acct:", "").split("@");
-    const username = parts[0];
+    if (parts.length !== 2) {
+      return new Response("Bad Request: Invalid resource format", { status: 400 });
+    }
     
-    // Verify this is for our domain (optional but recommended)
-    // const domain = parts[1];
-    // if (domain !== "yourdomain") {
-    //   return new Response("Bad Request: Not our domain", { status: 400 });
-    // }
+    const username = parts[0];
+    const domain = parts[1];
+    
+    // Get current host
+    const currentHost = url.hostname;
+    
+    // Verify this is for our domain
+    if (domain !== currentHost) {
+      return new Response("Not Found: Domain mismatch", { status: 404 });
+    }
 
     // Look up the actor in our database
     const [actor] = await db.select().from(actors).where(eq(actors.preferredUsername, username));
@@ -30,23 +37,17 @@ export const handler: Handlers = {
 
     // Return WebFinger response with links to the actor
     return Response.json({
-      subject: `acct:${actor.preferredUsername}@yourdomain`,
+      subject: `acct:${username}@${domain}`,
       links: [
         {
           rel: "self",
           type: "application/activity+json",
-          href: `https://yourdomain/@${actor.preferredUsername}`
-        },
-        {
-          rel: "http://webfinger.net/rel/profile-page",
-          type: "text/html",
-          href: `https://yourdomain/@${actor.preferredUsername}`
+          href: `https://${domain}/u/${username}`
         }
       ]
     }, {
       headers: {
-        "Content-Type": "application/jrd+json",
-        "Cache-Control": "max-age=3600"
+        "Content-Type": "application/jrd+json"
       }
     });
   }
