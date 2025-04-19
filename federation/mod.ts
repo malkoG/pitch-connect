@@ -32,16 +32,4 @@ federation.setActorDispatcher(
   },
 );
 
-federation.receive = async function (activity, ctx) {
-  if (activity.type === "Follow") {
-    const follower = activity.actor;
-    const target = activity.object;
-    logger.info(`[Follow] ${follower} → ${target}`);
-
-    // Optional: add database logic here to store the following relationship
-
-    await ctx.accept(activity);
-  }
-};
-
 export default federation;
