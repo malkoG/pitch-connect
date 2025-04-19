@@ -21,18 +21,32 @@ export const handler: Handlers = {
     
     // If client wants ActivityPub format or explicitly requests it
     if (wantsActivityJson) {
-      return new Response(JSON.stringify({
-        "@context": "https://www.w3.org/ns/activitystreams",
-        "id": `https://yourdomain/@${actor.preferredUsername}`,
+      // Get the host from the request URL
+      const url = new URL(req.url);
+      const host = url.hostname;
+      
+      // Construct the ActivityPub actor representation
+      const actorUrl = `https://${host}/@${username}`;
+      
+      return Response.json({
+        "@context": [
+          "https://www.w3.org/ns/activitystreams",
+          "https://w3id.org/security/v1"
+        ],
+        "id": actorUrl,
         "type": "Person",
-        "preferredUsername": actor.preferredUsername,
+        "preferredUsername": username,
         "name": actor.name ?? actor.preferredUsername,
-        "summary": actor.summary,
-        "inbox": actor.inbox,
-        "outbox": actor.outbox,
-        "url": `https://yourdomain/@${actor.preferredUsername}`,
-        "published": actor.createdAt.toISOString(),
-      }), {
+        "summary": actor.summary || "",
+        "inbox": `${actorUrl}/inbox`,
+        "outbox": `${actorUrl}/outbox`,
+        "followers": `${actorUrl}/followers`,
+        "following": `${actorUrl}/following`,
+        "publicKey": {
+          "id": `${actorUrl}#main-key`,
+          "owner": actorUrl
+        }
+      }, {
         headers: { 
           "Content-Type": "application/activity+json",
           "Cache-Control": "max-age=3600"
