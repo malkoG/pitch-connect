@@ -14,12 +14,20 @@ const federation = createFederation({
 });
 
 federation.setActorDispatcher(
-  "/users/{identifier}",
+  "/ap/actors/{identifier}",
   async (ctx, identifier) => {
+    logger.debug("Dispatching actor request for identifier:", identifier);
     const [actor] = await db.select().from(actors).where(
       eq(actors.preferredUsername, identifier),
     );
-    if (!actor) return null;
+    if (!actor) {
+      return new Person({
+        preferredUsername: identifier,
+        name: identifier,
+        id: ctx.getActorUri(identifier),
+        summary: identifier,
+      });
+    }
 
     return new Person({
       id: ctx.getActorUri(identifier),
