@@ -1,5 +1,4 @@
-This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
-The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
 
 <file_summary>
 This section contains a summary of this file.
@@ -32,10 +31,8 @@ The content is organized as follows:
 <notes>
 - Some files may have been excluded based on .gitignore rules and Repomix's configuration
 - Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
-- Files matching these patterns are excluded: node_modules
 - Files matching patterns in .gitignore are excluded
 - Files matching default ignore patterns are excluded
-- Content has been compressed - code blocks are separated by ⋮---- delimiter
 - Files are sorted by Git change count (files with more changes are at the bottom)
 </notes>
 
@@ -48,15 +45,37 @@ The content is organized as follows:
 <directory_structure>
 components/
   Button.tsx
+drizzle/
+  meta/
+    _journal.json
+    0000_snapshot.json
+    0001_snapshot.json
+  0000_magical_diamondback.sql
+  0001_last_valkyrie.sql
 federation/
   mod.ts
 islands/
   Counter.tsx
+  PdfViewerWithButtons.tsx
+  PostForm.tsx
+  PostList.tsx
+lib/
+  db.ts
+models/
+  post.ts
+  schema.ts
 routes/
+  @[username]/
+    inbox.ts
+    index.ts
+    outbox.ts
   api/
     joke.ts
+    posts.ts
   greet/
     [name].tsx
+  pdf/
+    preview.tsx
   _404.tsx
   _app.tsx
   _middleware.ts
@@ -64,81 +83,778 @@ routes/
 static/
   logo.svg
   styles.css
+.dockerignore
 .gitignore
+.repomixignore
 deno.json
 dev.ts
+docker-compose.yml
+Dockerfile
+drizzle.config.ts
 fresh.config.ts
 fresh.gen.ts
+import_map.json
 logging.ts
 main.ts
 README.md
+repomix.config.json
 tailwind.config.ts
 </directory_structure>
 
 <files>
 This section contains the contents of the repository's files.
 
+<file path=".repomixignore">
+# Add patterns to ignore here, one per line
+# Example:
+# *.log
+# tmp/
+static/pdf.worker.entry.js
+</file>
+
+<file path="repomix.config.json">
+{
+  "output": {
+    "filePath": "repomix-output.xml",
+    "style": "xml",
+    "parsableStyle": false,
+    "fileSummary": true,
+    "directoryStructure": true,
+    "removeComments": false,
+    "removeEmptyLines": false,
+    "compress": false,
+    "topFilesLength": 5,
+    "showLineNumbers": false,
+    "copyToClipboard": false,
+    "git": {
+      "sortByChanges": true,
+      "sortByChangesMaxCommits": 100
+    }
+  },
+  "include": [],
+  "ignore": {
+    "useGitignore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": []
+  },
+  "security": {
+    "enableSecurityCheck": true
+  },
+  "tokenCount": {
+    "encoding": "o200k_base"
+  }
+}
+</file>
+
 <file path="components/Button.tsx">
 import { JSX } from "preact";
 import { IS_BROWSER } from "$fresh/runtime.ts";
-⋮----
-export function Button(props: JSX.HTMLAttributes<HTMLButtonElement>)
+
+export function Button(props: JSX.HTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button
+      {...props}
+      disabled={!IS_BROWSER || props.disabled}
+      class="px-2 py-1 border-gray-500 border-2 rounded bg-white hover:bg-gray-200 transition-colors"
+    />
+  );
+}
 </file>
 
-<file path="federation/mod.ts">
-import { createFederation, Person } from "@fedify/fedify";
-import { getLogger } from "@logtape/logtape";
-import { PostgresKvStore, PostgresMessageQueue } from "@fedify/postgres";
-import postgres from "postgres";
+<file path="drizzle/meta/0000_snapshot.json">
+{
+  "id": "6116cd83-47d7-4267-b5b0-b1c7d092982d",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.posts": {
+      "name": "posts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "published_at": {
+          "name": "published_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "iri": {
+          "name": "iri",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "posts_iri_unique": {
+          "name": "posts_iri_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "iri"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
+</file>
+
+<file path="drizzle/meta/0001_snapshot.json">
+{
+  "id": "37032945-723c-43fd-ac67-4d6204b14d16",
+  "prevId": "6116cd83-47d7-4267-b5b0-b1c7d092982d",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.actors": {
+      "name": "actors",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "preferred_username": {
+          "name": "preferred_username",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "summary": {
+          "name": "summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "inbox": {
+          "name": "inbox",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "outbox": {
+          "name": "outbox",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "actors_preferred_username_unique": {
+          "name": "actors_preferred_username_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "preferred_username"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.posts": {
+      "name": "posts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "published_at": {
+          "name": "published_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "iri": {
+          "name": "iri",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "posts_iri_unique": {
+          "name": "posts_iri_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "iri"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
+</file>
+
+<file path="drizzle/0000_magical_diamondback.sql">
+CREATE TABLE "posts" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"actor_id" uuid NOT NULL,
+	"content" text NOT NULL,
+	"published_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"iri" text NOT NULL,
+	CONSTRAINT "posts_iri_unique" UNIQUE("iri")
+);
+</file>
+
+<file path="drizzle/0001_last_valkyrie.sql">
+CREATE TABLE "actors" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"preferred_username" text NOT NULL,
+	"name" text,
+	"summary" text,
+	"inbox" text NOT NULL,
+	"outbox" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "actors_preferred_username_unique" UNIQUE("preferred_username")
+);
 </file>
 
 <file path="islands/Counter.tsx">
 import type { Signal } from "@preact/signals";
 import { Button } from "../components/Button.tsx";
-⋮----
+
 interface CounterProps {
   count: Signal<number>;
 }
+
+export default function Counter(props: CounterProps) {
+  return (
+    <div class="flex gap-8 py-6">
+      <Button onClick={() => props.count.value -= 1}>-1</Button>
+      <p class="text-3xl tabular-nums">{props.count}</p>
+      <Button onClick={() => props.count.value += 1}>+1</Button>
+    </div>
+  );
+}
+</file>
+
+<file path="islands/PdfViewerWithButtons.tsx">
+// components/PdfViewerWithButtons.tsx
+import { h } from "preact";
+import { useState, useEffect, useRef, useCallback } from "preact/hooks";
+
+// Use npm: specifier to import pdfjs-dist
+import * as pdfjsLib from "npm:pdfjs-dist@3.11.174/build/pdf.js";
+
+// --- PDF.js Worker Setup ---
+// IMPORTANT: You MUST copy the worker file (`pdf.worker.min.js`) from the
+// pdfjs-dist package (e.g., from node_modules/pdfjs-dist/build/ or Deno cache)
+// into your project's `static/` directory for this path to work.
+const pdfWorkerSrc = '/pdf.worker.entry.js'; // Path relative to the static root
+
+interface PdfViewerProps {
+  pdfUrl: string;
+}
+
+export default function PdfViewerWithButtons({ pdfUrl }: PdfViewerProps) {
+  const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [numPages, setNumPages] = useState(0);
+  const [loading, setLoading] = useState(true); // Unified loading state
+  const [error, setError] = useState<string | null>(null); // Error state
+  const [renderTask, setRenderTask] = useState<pdfjsLib.PDFRenderTask | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Set Worker Source on Mount
+  useEffect(() => {
+    if (pdfjsLib.GlobalWorkerOptions) {
+       pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
+    } else {
+        console.warn("pdfjsLib.GlobalWorkerOptions is not available at mount time. Worker might not load correctly.");
+        setError("PDF.js worker infrastructure not ready.");
+    }
+  }, []); // Runs once on mount
+
+  // PDF Load Function
+  const loadPdf = useCallback(async () => {
+    if (!pdfUrl) {
+      setError("No PDF URL provided.");
+      setLoading(false);
+      return;
+    }
+    if (!pdfjsLib.GlobalWorkerOptions?.workerSrc) {
+      setError("PDF worker source not configured. Cannot load PDF.");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setPdfDoc(null);
+    setNumPages(0);
+    setCurrentPage(1);
+
+    try {
+      const loadingTask = pdfjsLib.getDocument(pdfUrl);
+      const pdf = await loadingTask.promise;
+      setPdfDoc(pdf);
+      setNumPages(pdf.numPages);
+      // Keep loading=true until the first page is rendered
+    } catch (err: any) {
+      console.error('Error loading PDF:', pdfUrl, err);
+      setError(`Failed to load PDF: ${err.message || 'Unknown error'}`);
+      setLoading(false);
+    }
+  }, [pdfUrl]);
+
+  // Page Render Function - *** FIX APPLIED HERE ***
+  const renderPage = useCallback(async (pageNum) => {
+    if (!pdfDoc || !canvasRef.current) {
+        return;
+    }
+
+    if (renderTask) {
+      renderTask.cancel();
+    }
+    setLoading(true);
+
+    try {
+      const page = await pdfDoc.getPage(pageNum);
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      if (!context) {
+          throw new Error("Could not get canvas context");
+      }
+
+      const containerWidth = containerRef.current ? containerRef.current.offsetWidth : 800;
+      const viewport = page.getViewport({ scale: 1 });
+      const scale = containerWidth > 0 ? containerWidth / viewport.width : 1;
+      const scaledViewport = page.getViewport({ scale });
+
+      canvas.height = scaledViewport.height;
+      canvas.width = scaledViewport.width;
+
+      const task = page.render({
+        canvasContext: context,
+        viewport: scaledViewport,
+      });
+      setRenderTask(task);
+
+      await task.promise;
+      setRenderTask(null);
+      setError(null);
+
+    } catch (err: any) {
+      setRenderTask(null);
+      if (err.name !== 'RenderingCancelledException') {
+         console.error(`Error rendering page ${pageNum}:`, err);
+         setError(`Failed to render page ${pageNum}: ${err.message || 'Unknown error'}`);
+      } else {
+          console.log(`Rendering cancelled for page ${pageNum}`);
+      }
+    } finally {
+       setLoading(false);
+    }
+  // --- Dependency Fix: Removed 'renderTask' from this array ---
+  }, [pdfDoc]); // Now only depends on pdfDoc
+
+  // Effect to Load PDF when URL changes
+  useEffect(() => {
+    loadPdf();
+  }, [loadPdf]);
+
+  // Effect to Render Page when document or page number changes
+  useEffect(() => {
+    if (pdfDoc) {
+      renderPage(currentPage);
+    }
+    // Cleanup function
+    return () => {
+       if (renderTask) {
+           renderTask.cancel();
+       }
+    };
+  // Dependencies for the render effect *include* renderPage
+  }, [pdfDoc, currentPage, renderPage]);
+
+
+  // Page Navigation Handlers
+  const changePage = (offset: number) => {
+    if (loading) return;
+    const newPage = currentPage + offset;
+    if (pdfDoc && newPage >= 1 && newPage <= numPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  const previousPage = () => changePage(-1);
+  const nextPage = () => changePage(1);
+
+  // Component Render
+  return (
+    <div ref={containerRef}>
+      {/* Error Display Area */}
+      {error && (
+          <div style={{
+              padding: '10px', margin: '10px 0', border: '1px solid red',
+              color: 'red', backgroundColor: '#ffebee'
+             }}>
+             Error: {error}
+          </div>
+      )}
+
+      {/* Loading Indicator */}
+      {loading && (
+          <div style={{ margin: '20px 0', textAlign: 'center', padding: '20px', background: '#f0f0f0' }}>
+              Loading PDF... Please wait.
+          </div>
+      )}
+
+      {/* Canvas Container */}
+      <div style={{
+          position: 'relative', minHeight: '200px', background: '#e0e0e0',
+          display: !pdfDoc || error ? 'none' : 'block'
+         }}>
+        <canvas
+          ref={canvasRef}
+          style={{
+             display: 'block', width: '100%', height: 'auto',
+             visibility: loading ? 'hidden' : 'visible'
+          }}
+        />
+      </div>
+
+      {/* Controls */}
+      {!loading && pdfDoc && !error && numPages > 0 && (
+        <div style={{ marginTop: '15px', padding: '10px 0', textAlign: 'center', background: '#f8f8f8', borderTop: '1px solid #ccc' }}>
+          <button
+            type="button"
+            disabled={currentPage <= 1}
+            onClick={previousPage}
+            style={{ padding: '8px 15px', marginRight: '10px', cursor: 'pointer', border: '1px solid #ccc', borderRadius: '4px' }}
+          >
+            &larr; Previous
+          </button>
+          <span style={{ margin: '0 15px', display: 'inline-block', verticalAlign: 'middle' }}>
+            Page {currentPage} of {numPages}
+          </span>
+          <button
+            type="button"
+            disabled={currentPage >= numPages}
+            onClick={nextPage}
+            style={{ padding: '8px 15px', marginLeft: '10px', cursor: 'pointer', border: '1px solid #ccc', borderRadius: '4px' }}
+           >
+            Next &rarr;
+          </button>
+        </div>
+      )}
+
+      {/* Fallback message if no PDF URL was provided */}
+      {!pdfUrl && !error && !loading && ( // Only show if not loading and no other error
+          <div style={{ padding: '10px', color: 'orange' }}>
+              Please provide a PDF URL in the query string (e.g., ?url=...).
+          </div>
+      )}
+    </div>
+  );
+}
+</file>
+
+<file path="islands/PostForm.tsx">
+import { useState } from "preact/hooks";
+
+export default function PostForm() {
+  const [content, setContent] = useState("");
+
+  const submit = async () => {
+    const res = await fetch("/api/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content }),
+    });
+
+    if (res.ok) {
+      setContent("");
+      location.reload(); // 또는 새 post만 추가하는 방식으로 확장 가능
+    } else {
+      alert("Failed to post");
+    }
+  };
+
+  return (
+    <div class="mb-4">
+      <textarea
+        class="w-full p-2 border rounded"
+        rows={3}
+        placeholder="What's happening?"
+        value={content}
+        onInput={(e) => setContent((e.target as HTMLTextAreaElement).value)}
+      />
+      <button 
+        class="mt-2 px-4 py-1 rounded bg-blue-500 text-white" 
+        onClick={submit}
+        disabled={!content.trim()}
+      >
+        Post
+      </button>
+    </div>
+  );
+}
+</file>
+
+<file path="islands/PostList.tsx">
+export default function PostList({ posts }: { posts: any[] }) {
+  return (
+    <ul class="space-y-2">
+      {posts.map((post) => (
+        <li class="border p-2 rounded shadow bg-white" key={post.id}>
+          <p class="text-sm text-gray-500">{new Date(post.publishedAt).toLocaleString()}</p>
+          <p>{post.content}</p>
+        </li>
+      ))}
+    </ul>
+  );
+}
+</file>
+
+<file path="lib/db.ts">
+import postgres from "postgres";
+import { drizzle } from "drizzle-orm/postgres-js";
+
+const client = postgres(Deno.env.get("DATABASE_URL")!, { max: 1 });
+export const db = drizzle(client);
+</file>
+
+<file path="models/post.ts">
+import { pgTable, uuid, text, timestamp } from 'drizzle-orm/pg-core';
+
+export const posts = pgTable('posts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  actorId: uuid('actor_id').notNull(),
+  content: text('content').notNull(),
+  publishedAt: timestamp('published_at', { withTimezone: true }).notNull().defaultNow(),
+  iri: text('iri').unique().notNull(),
+});
+</file>
+
+<file path="routes/@[username]/outbox.ts">
+import { Handlers } from "$fresh/server.ts";
+import { db } from "../../lib/db.ts";
+import { posts } from "../../models/schema.ts";
+import { eq } from "drizzle-orm";
+
+// Temporary function to resolve username to actor ID
+// This will be replaced with proper user management later
+async function resolveActorId(username: string): Promise<string> {
+  // For now, return a fixed UUID for demo purposes
+  return "00000000-0000-0000-0000-000000000000";
+}
+
+export const handler: Handlers = {
+  async GET(_req, ctx) {
+    const { username } = ctx.params;
+    const actorId = await resolveActorId(username);
+
+    const actorPosts = await db.select().from(posts)
+      .where(eq(posts.actorId, actorId))
+      .orderBy(posts.publishedAt);
+
+    const activities = actorPosts.map((post) => ({
+      type: "Create",
+      actor: `https://yourdomain/@${username}`,
+      id: post.iri,
+      object: {
+        type: "Note",
+        content: post.content,
+        published: post.publishedAt.toISOString(),
+      },
+    }));
+
+    return new Response(JSON.stringify({
+      "@context": "https://www.w3.org/ns/activitystreams",
+      type: "OrderedCollection",
+      totalItems: activities.length,
+      orderedItems: activities,
+    }), {
+      headers: { 
+        "Content-Type": "application/activity+json",
+        "Cache-Control": "max-age=60"
+      },
+    });
+  }
+};
 </file>
 
 <file path="routes/api/joke.ts">
 import { FreshContext } from "$fresh/server.ts";
-⋮----
+
 // Jokes courtesy of https://punsandoneliners.com/randomness/programmer-jokes/
-⋮----
-export const handler = (_req: Request, _ctx: FreshContext): Response =>
+const JOKES = [
+  "Why do Java developers often wear glasses? They can't C#.",
+  "A SQL query walks into a bar, goes up to two tables and says “can I join you?”",
+  "Wasn't hard to crack Forrest Gump's password. 1forrest1.",
+  "I love pressing the F5 key. It's refreshing.",
+  "Called IT support and a chap from Australia came to fix my network connection.  I asked “Do you come from a LAN down under?”",
+  "There are 10 types of people in the world. Those who understand binary and those who don't.",
+  "Why are assembly programmers often wet? They work below C level.",
+  "My favourite computer based band is the Black IPs.",
+  "What programme do you use to predict the music tastes of former US presidential candidates? An Al Gore Rhythm.",
+  "An SEO expert walked into a bar, pub, inn, tavern, hostelry, public house.",
+];
+
+export const handler = (_req: Request, _ctx: FreshContext): Response => {
+  const randomIndex = Math.floor(Math.random() * JOKES.length);
+  const body = JOKES[randomIndex];
+  return new Response(body);
+};
 </file>
 
 <file path="routes/greet/[name].tsx">
 import { PageProps } from "$fresh/server.ts";
-⋮----
-export default function Greet(props: PageProps)
+
+export default function Greet(props: PageProps) {
+  return <div>Hello {props.params.name}</div>;
+}
 </file>
 
 <file path="routes/_404.tsx">
 import { Head } from "$fresh/runtime.ts";
-⋮----
-export default function Error404()
+
+export default function Error404() {
+  return (
+    <>
+      <Head>
+        <title>404 - Page not found</title>
+      </Head>
+      <div class="px-4 py-8 mx-auto bg-[#86efac]">
+        <div class="max-w-screen-md mx-auto flex flex-col items-center justify-center">
+          <img
+            class="my-6"
+            src="/logo.svg"
+            width="128"
+            height="128"
+            alt="the Fresh logo: a sliced lemon dripping with juice"
+          />
+          <h1 class="text-4xl font-bold">404 - Page not found</h1>
+          <p class="my-4">
+            The page you were looking for doesn't exist.
+          </p>
+          <a href="/" class="underline">Go back home</a>
+        </div>
+      </div>
+    </>
+  );
+}
 </file>
 
 <file path="routes/_app.tsx">
 import { type PageProps } from "$fresh/server.ts";
-export default function App(
+export default function App({ Component }: PageProps) {
+  return (
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>pitch-connect</title>
+        <link rel="stylesheet" href="/styles.css" />
+      </head>
+      <body>
+        <Component />
+      </body>
+    </html>
+  );
+}
 </file>
 
 <file path="routes/_middleware.ts">
 import { Handler } from "$fresh/server.ts";
 import federation from "../federation/mod.ts";
 import { integrateHandler } from "@fedify/fedify/x/fresh";
-⋮----
-// This is the entry point to the Fedify middleware from the Fresh framework:
-</file>
 
-<file path="routes/index.tsx">
-import { useSignal } from "@preact/signals";
-import Counter from "../islands/Counter.tsx";
-⋮----
-export default function Home()
+// This is the entry point to the Fedify middleware from the Fresh framework:
+export const handler: Handler = integrateHandler(federation, () => undefined);
 </file>
 
 <file path="static/logo.svg">
@@ -156,90 +872,100 @@ export default function Home()
 @tailwind utilities;
 </file>
 
-<file path=".gitignore">
-# dotenv environment variable files
+<file path=".dockerignore">
+.git
+.github
+.vscode
 .env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
-
-# Fresh build directory
-_fresh/
-# npm dependencies
-node_modules/
-</file>
-
-<file path="deno.json">
-{
-  "lock": false,
-  "tasks": {
-    "check": "deno fmt --check && deno lint && deno check **/*.ts && deno check **/*.tsx",
-    "cli": "echo \"import '\\$fresh/src/dev/cli.ts'\" | deno run --unstable -A -",
-    "manifest": "deno task cli manifest $(pwd)",
-    "start": "deno run -A --watch=static/,routes/ dev.ts",
-    "build": "deno run -A dev.ts build",
-    "preview": "deno run -A main.ts",
-    "update": "deno run -A -r https://fresh.deno.dev/update ."
-  },
-  "lint": {
-    "rules": {
-      "tags": [
-        "fresh",
-        "recommended"
-      ]
-    }
-  },
-  "exclude": [
-    "**/_fresh/*"
-  ],
-  "imports": {
-    "$fresh/": "https://deno.land/x/fresh@1.6.8/",
-    "@fedify/fedify": "jsr:@fedify/fedify@^1.5.1",
-    "@fedify/postgres": "jsr:@fedify/postgres@^0.2.2",
-    "@hongminhee/x-forwarded-fetch": "jsr:@hongminhee/x-forwarded-fetch@^0.2.0",
-    "@logtape/logtape": "jsr:@logtape/logtape@^0.8.2",
-    "postgres": "npm:postgres@^3.4.5",
-    "preact": "https://esm.sh/preact@10.19.6",
-    "preact/": "https://esm.sh/preact@10.19.6/",
-    "@preact/signals": "https://esm.sh/*@preact/signals@1.2.2",
-    "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.5.1",
-    "tailwindcss": "npm:tailwindcss@3.4.1",
-    "tailwindcss/": "npm:/tailwindcss@3.4.1/",
-    "tailwindcss/plugin": "npm:/tailwindcss@3.4.1/plugin.js",
-    "$std/": "https://deno.land/std@0.216.0/"
-  },
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "preact"
-  },
-  "nodeModulesDir": true,
-  "unstable": [
-    "temporal"
-  ]
-}
+node_modules
+_fresh
 </file>
 
 <file path="dev.ts">
+#!/usr/bin/env -S deno run -A --watch=static/,routes/
+
 import dev from "$fresh/dev.ts";
+
+import "$std/dotenv/load.ts";
+
+await dev(import.meta.url, "./main.ts");
+</file>
+
+<file path="docker-compose.yml">
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - deno-cache:/deno-dir
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+volumes:
+  deno-cache:
+  postgres-data:
+</file>
+
+<file path="Dockerfile">
+FROM denoland/deno:alpine-2.2.10
+
+WORKDIR /app
+
+COPY . .
+
+ENV DENO_DIR=/deno-dir
+VOLUME ["/deno-dir"]
+
+EXPOSE 8000
+
+CMD ["deno", "task", "start"]
 </file>
 
 <file path="fresh.config.ts">
+import "./logging.ts";
 import { defineConfig } from "$fresh/server.ts";
 import tailwind from "$fresh/plugins/tailwind.ts";
-</file>
 
-<file path="fresh.gen.ts">
-// DO NOT EDIT. This file is generated by Fresh.
-// This file SHOULD be checked into source version control.
-// This file is automatically updated during development when running `dev.ts`.
-⋮----
-import { type Manifest } from "$fresh/server.ts";
+export default defineConfig({
+  plugins: [tailwind()],
+});
 </file>
 
 <file path="logging.ts">
 import { configure, getConsoleSink } from "@logtape/logtape";
 import { AsyncLocalStorage } from "node:async_hooks";
+
+await configure({
+  contextLocalStorage: new AsyncLocalStorage(),
+  sinks: {
+    console: getConsoleSink(),
+  },
+  filters: {},
+  loggers: [
+    { category: "pitch-connect", lowestLevel: "debug", sinks: ["console"] },
+    { category: "fedify", lowestLevel: "info", sinks: ["console"] },
+    { category: ["logtape", "meta"], lowestLevel: "warning", sinks: ["console"] },
+  ],
+});
 </file>
 
 <file path="main.ts">
@@ -248,11 +974,21 @@ import { AsyncLocalStorage } from "node:async_hooks";
 /// <reference lib="dom.iterable" />
 /// <reference lib="dom.asynciterable" />
 /// <reference lib="deno.ns" />
-⋮----
+
+import "$std/dotenv/load.ts";
+
 import { ServerContext } from "$fresh/server.ts";
 import manifest from "./fresh.gen.ts";
 import config from "./fresh.config.ts";
 import { behindProxy } from "@hongminhee/x-forwarded-fetch";
+
+const ctx = await ServerContext.fromManifest(manifest, {
+  ...config,
+  dev: false,
+});
+const handler = behindProxy(ctx.handler());
+
+Deno.serve({ handler, ...config.server });
 </file>
 
 <file path="README.md">
@@ -276,6 +1012,590 @@ This will watch the project directory and restart as necessary.
 
 <file path="tailwind.config.ts">
 import { type Config } from "tailwindcss";
+
+export default {
+  content: [
+    "{routes,islands,components}/**/*.{ts,tsx}",
+  ],
+} satisfies Config;
+</file>
+
+<file path="drizzle/meta/_journal.json">
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1744756246094,
+      "tag": "0000_magical_diamondback",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1744757843256,
+      "tag": "0001_last_valkyrie",
+      "breakpoints": true
+    }
+  ]
+}
+</file>
+
+<file path="models/schema.ts">
+// This file exports all schema definitions for drizzle-kit migrations
+import { pgTable, uuid, text, timestamp } from "drizzle-orm/pg-core";
+import { posts } from "./post.ts";
+
+// Define actors table
+export const actors = pgTable("actors", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  preferredUsername: text("preferred_username").notNull().unique(),
+  name: text("name"),
+  summary: text("summary"),
+  inbox: text("inbox").notNull(),
+  outbox: text("outbox").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Export all schema tables
+export { posts };
+</file>
+
+<file path="routes/api/posts.ts">
+import { Handlers } from "$fresh/server.ts";
+import { db } from "../../lib/db.ts";
+import { posts } from "../../models/schema.ts";
+import { desc } from "drizzle-orm";
+import federation from "../../federation/mod.ts";
+import { crypto } from "$std/crypto/mod.ts";
+
+export const handler: Handlers = {
+  async GET(_req) {
+    const result = await db.select().from(posts).orderBy(
+      desc(posts.publishedAt),
+    ).limit(20);
+    return Response.json(result);
+  },
+
+  async POST(req) {
+    const body = await req.json();
+    const content = body.content;
+    if (typeof content !== "string" || content.trim() === "") {
+      return new Response("Invalid content", { status: 400 });
+    }
+
+    const iri = `https://yourdomain/@me/status/${crypto.randomUUID()}`;
+    const actorId = "00000000-0000-0000-0000-000000000000"; // TODO: 인증 기반으로 대체
+
+    const [post] = await db.insert(posts).values({
+      actorId,
+      content,
+      iri,
+    }).returning();
+
+    await federation.outbox.post(actorId, {
+      type: "Create",
+      object: {
+        type: "Note",
+        content: post.content,
+        published: post.publishedAt.toISOString(),
+        id: post.iri,
+      },
+    });
+
+    return new Response("Created", { status: 201 });
+  },
+};
+</file>
+
+<file path=".gitignore">
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# Fresh build directory
+_fresh/
+# npm dependencies
+node_modules/
+.aider*
+</file>
+
+<file path="routes/pdf/preview.tsx">
+import { PageProps } from "$fresh/server.ts";
+import PdfViewerWithButtons from "../../islands/PdfViewerWithButtons.tsx";
+
+export default function PdfPreviewPage(props: PageProps) {
+  // Extract PDF URL from query parameters
+  const url = new URL(props.url);
+  // const pdfUrl = url.searchParams.get("url");
+  const pdfUrl = "https://handbook.duolingo.com"
+
+  return (
+    <div class="p-4 mx-auto max-w-screen-lg">
+      <h1 class="text-2xl font-bold mb-4">PDF Preview</h1>
+      {pdfUrl ? (
+        <PdfViewerWithButtons pdfUrl={pdfUrl} />
+      ) : (
+        <p class="text-red-600">
+          Error: Please provide a PDF URL using the 'url' query parameter.
+          <br />
+          Example: /pdf/preview?url=https://example.com/document.pdf
+        </p>
+      )}
+    </div>
+  );
+}
+</file>
+
+<file path="routes/index.tsx">
+import { Handlers, PageProps } from "$fresh/server.ts";
+import { db } from "../lib/db.ts";
+import { posts } from "../models/schema.ts";
+import { desc } from "drizzle-orm";
+import PostList from "../islands/PostList.tsx";
+import PostForm from "../islands/PostForm.tsx";
+
+export const handler: Handlers = {
+  async GET(_, ctx) {
+    const postList = await db.select().from(posts).orderBy(desc(posts.publishedAt)).limit(20);
+    return ctx.render({ posts: postList });
+  }
+};
+
+export default function Home({ data }: PageProps<{ posts: any[] }>) {
+  return (
+    <div class="p-4 mx-auto max-w-screen-md">
+      <h1 class="text-3xl font-bold mb-4">Micro Timeline</h1>
+      <PostForm />
+      <PostList posts={data.posts} />
+    </div>
+  );
+}
+</file>
+
+<file path="drizzle.config.ts">
+import { config } from "dotenv";
+import { defineConfig } from "drizzle-kit";
+
+// Load environment variables from .env
+config();
+
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL || typeof DATABASE_URL !== "string") {
+  throw new Error("Missing or invalid DATABASE_URL environment variable.");
+}
+
+// Validate that the URL has the expected format
+try {
+  const url = new URL(DATABASE_URL);
+  console.log("Database connection info:");
+  console.log(`- Host: ${url.hostname}`);
+  console.log(`- Port: ${url.port}`);
+  console.log(`- Username: ${url.username}`);
+  console.log(`- Password: ${url.password ? "****" : "NOT SET"}`);
+  console.log(`- Database: ${url.pathname.substring(1)}`);
+  
+  if (!url.password) {
+    console.warn("WARNING: No password set in DATABASE_URL");
+  }
+} catch (error) {
+  throw new Error(`Invalid DATABASE_URL format: ${error.message}`);
+}
+
+export default defineConfig({
+  out: "./drizzle",
+  schema: "./models/schema.ts",
+  dialect: "postgresql",
+  dbCredentials: {
+    url: DATABASE_URL,
+  },
+});
+</file>
+
+<file path="fresh.gen.ts">
+// DO NOT EDIT. This file is generated by Fresh.
+// This file SHOULD be checked into source version control.
+// This file is automatically updated during development when running `dev.ts`.
+
+import * as $_username_inbox from "./routes/@[username]/inbox.ts";
+import * as $_username_index from "./routes/@[username]/index.ts";
+import * as $_username_outbox from "./routes/@[username]/outbox.ts";
+import * as $_404 from "./routes/_404.tsx";
+import * as $_app from "./routes/_app.tsx";
+import * as $_middleware from "./routes/_middleware.ts";
+import * as $api_joke from "./routes/api/joke.ts";
+import * as $api_posts from "./routes/api/posts.ts";
+import * as $greet_name_ from "./routes/greet/[name].tsx";
+import * as $index from "./routes/index.tsx";
+import * as $pdf_preview from "./routes/pdf/preview.tsx";
+import * as $Counter from "./islands/Counter.tsx";
+import * as $PdfViewerWithButtons from "./islands/PdfViewerWithButtons.tsx";
+import * as $PostForm from "./islands/PostForm.tsx";
+import * as $PostList from "./islands/PostList.tsx";
+import { type Manifest } from "$fresh/server.ts";
+
+const manifest = {
+  routes: {
+    "./routes/@[username]/inbox.ts": $_username_inbox,
+    "./routes/@[username]/index.ts": $_username_index,
+    "./routes/@[username]/outbox.ts": $_username_outbox,
+    "./routes/_404.tsx": $_404,
+    "./routes/_app.tsx": $_app,
+    "./routes/_middleware.ts": $_middleware,
+    "./routes/api/joke.ts": $api_joke,
+    "./routes/api/posts.ts": $api_posts,
+    "./routes/greet/[name].tsx": $greet_name_,
+    "./routes/index.tsx": $index,
+    "./routes/pdf/preview.tsx": $pdf_preview,
+  },
+  islands: {
+    "./islands/Counter.tsx": $Counter,
+    "./islands/PdfViewerWithButtons.tsx": $PdfViewerWithButtons,
+    "./islands/PostForm.tsx": $PostForm,
+    "./islands/PostList.tsx": $PostList,
+  },
+  baseUrl: import.meta.url,
+} satisfies Manifest;
+
+export default manifest;
+</file>
+
+<file path="import_map.json">
+{
+  "imports": {
+    "$fresh/": "https://deno.land/x/fresh@1.6.8/",
+    "preact": "https://esm.sh/preact@10.19.2",
+    "preact/": "https://esm.sh/preact@10.19.2/",
+    "preact-render-to-string": "https://esm.sh/*preact-render-to-string@6.2.2",
+    "@preact/signals": "https://esm.sh/*@preact/signals@1.2.1",
+    "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.5.0",
+    "pdfjs-dist": "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.js"
+  }
+}
+</file>
+
+<file path="routes/@[username]/index.ts">
+import { FreshContext, Handlers } from "$fresh/server.ts";
+import { getLogger } from "@logtape/logtape";
+
+import { db } from "../../lib/db.ts";
+import { actors } from "../../models/schema.ts";
+import { eq } from "drizzle-orm";
+import federation from "../../federation/mod.ts";
+
+const logger = getLogger("pitch-connect");
+/**
+ * Get an account by handle (username@domain)
+ * @param handle The handle in the format username@domain
+ * @returns Object containing the handle and actor if found, null otherwise
+ */
+async function getAccountByHandle(handle: string) {
+  // Parse the handle into username and domain
+  const parts = handle.split("@");
+
+  // Handle must have at least a username and domain
+  if (parts.length < 2) {
+    return null;
+  }
+
+  const username = parts[0];
+  // We don't use domain for now, but it's extracted for future use
+  // const domain = parts[1];
+
+  // Query the actors table by preferredUsername
+  const [actor] = await db.select().from(actors).where(
+    eq(actors.preferredUsername, username),
+  );
+
+  // If an actor is found, return the handle and actor
+  if (actor) {
+    return { handle, actor };
+  }
+
+  // Otherwise, return null
+  return null;
+}
+
+/**
+ * Save a remote actor to the database
+ * @param actor The actor object from ActivityPub
+ * @returns The saved actor or null if failed
+ */
+async function saveRemoteActor(actor: any) {
+  try {
+    // Check if the actor exists in actorTable by id
+    const [existingActor] = await db.select().from(actors).where(
+      eq(actors.id, actor.id),
+    );
+
+    if (!existingActor) {
+      // Extract hostname from actor id
+      const actorUrl = new URL(actor.id);
+      const hostname = actorUrl.hostname;
+
+      // Extract preferredUsername
+      const preferredUsername = actor.preferredUsername ||
+        actor.id.split("/").pop();
+
+      // Insert a new actor row
+      await db.insert(actors).values({
+        id: actor.id,
+        preferredUsername: preferredUsername,
+        name: actor.name || preferredUsername,
+        summary: actor.summary || "",
+        inbox: actor.inbox,
+        outbox: actor.outbox || "",
+      });
+
+      // Generate handle as preferredUsername@hostname
+      const handle = `${preferredUsername}@${hostname}`;
+
+      // Note: We're not handling accountTable insertion here as it's not
+      // defined in the schema provided. This would be implemented when
+      // the accountTable is added to the schema.
+
+      // Return the newly created actor
+      const [newActor] = await db.select().from(actors).where(
+        eq(actors.id, actor.id),
+      );
+      return { handle, actor: newActor };
+    }
+
+    // If actor exists, return it
+    const handle = `${existingActor.preferredUsername}@${
+      new URL(existingActor.id || "").hostname
+    }`;
+    return { handle, actor: existingActor };
+  } catch (error) {
+    console.error("Error saving remote actor:", error);
+    return null;
+  }
+}
+
+export const handler: Handlers = {
+  async GET(req: Request, ctx: FreshContext) {
+    const { username } = ctx.params;
+    logger.debug("Request for user:", username);
+    console.log("Request for user:", username);
+
+    // Check if the client is requesting ActivityPub format
+    const acceptHeader = req.headers.get("Accept") || "";
+    const wantsActivityJson =
+      acceptHeader.includes("application/activity+json") ||
+      acceptHeader.includes("application/ld+json");
+
+    // Get the host from the request URL
+    const url = new URL(req.url);
+    const host = url.hostname;
+
+    // Construct the handle from the username and request host
+    const handle = `${username}@${host}`;
+
+    // Try to get the account by handle
+    let accountInfo = await getAccountByHandle(handle);
+
+    // If not found and federation is available, try to fetch from remote
+    if (!accountInfo && federation) {
+      const actorUrl = `https://${host}/@${username}`;
+      try {
+        // Call context.getActor(actorUrl)
+        const remoteActor = await federation;
+
+        // If an actor is returned, save it
+        if (remoteActor) {
+          await saveRemoteActor(remoteActor);
+          // Retry getting the account
+          accountInfo = await getAccountByHandle(handle);
+        }
+      } catch (error) {
+        console.error("Error fetching remote actor:", error);
+      }
+    }
+
+    // If we found the actor, use it
+    if (accountInfo && accountInfo.actor) {
+      const actor = accountInfo.actor;
+
+      // If client wants ActivityPub format or explicitly requests it
+      if (wantsActivityJson) {
+        // Get the host from the request URL
+        const url = new URL(req.url);
+        const host = url.hostname;
+
+        // Construct the ActivityPub actor representation
+        const actorUrl = `https://${host}/@${username}`;
+
+        return Response.json({
+          "@context": [
+            "https://www.w3.org/ns/activitystreams",
+            "https://w3id.org/security/v1",
+          ],
+          "id": actorUrl,
+          "type": "Person",
+          "preferredUsername": username,
+          "name": actor.name ?? actor.preferredUsername,
+          "summary": actor.summary || "",
+          "inbox": `${actorUrl}/inbox`,
+          "outbox": `${actorUrl}/outbox`,
+          "followers": `${actorUrl}/followers`,
+          "following": `${actorUrl}/following`,
+          "publicKey": {
+            "id": `${actorUrl}#main-key`,
+            "owner": actorUrl,
+          },
+        }, {
+          headers: {
+            "Content-Type": "application/activity+json",
+            "Cache-Control": "max-age=3600",
+          },
+        });
+      }
+
+      // For regular web browsers, render a profile page (to be implemented)
+      // This is a placeholder for now
+      return new Response(
+        `<html><body><h1>Profile of @${actor.preferredUsername}</h1></body></html>`,
+        {
+          headers: { "Content-Type": "text/html" },
+        },
+      );
+    }
+
+    // If we couldn't find the actor, return 404
+    return new Response("Actor not found", { status: 404 });
+  },
+};
+</file>
+
+<file path="deno.json">
+{
+  "lock": false,
+  "tasks": {
+    "check": "deno fmt --check && deno lint && deno check **/*.ts && deno check **/*.tsx",
+    "cli": "echo \"import '\\$fresh/src/dev/cli.ts'\" | deno run --unstable -A -",
+    "manifest": "deno task cli manifest $(pwd)",
+    "drizzle-kit": "deno run -A npm:drizzle-kit@beta",
+	"migrate": "deno run -A npm:drizzle-kit@beta migrate",
+    "migrate:generate": "deno run -A npm:drizzle-kit@beta generate",
+    "migrate:test": "deno run --env-file=.env.test -A npm:drizzle-kit@beta migrate",
+    "start": "deno run -A --watch=static/,routes/ dev.ts",
+    "build": "deno run -A dev.ts build",
+    "preview": "deno run -A main.ts",
+    "update": "deno run -A -r https://fresh.deno.dev/update ."
+  },
+  "lint": {
+    "rules": {
+      "tags": [
+        "fresh",
+        "recommended"
+      ]
+    }
+  },
+  "exclude": [
+    "**/_fresh/*",
+    ".github/",
+    "drizzle/",
+    "node_modules/",
+    "static/"
+  ],
+  "imports": {
+    "$fresh/": "https://deno.land/x/fresh@1.6.8/",
+    "@fedify/fedify": "jsr:@fedify/fedify@^1.5.1",
+    "@fedify/postgres": "jsr:@fedify/postgres@^0.2.2",
+    "@hongminhee/x-forwarded-fetch": "jsr:@hongminhee/x-forwarded-fetch@^0.2.0",
+    "@logtape/logtape": "jsr:@logtape/logtape@^0.8.2",
+    "dotenv": "npm:dotenv@^16.5.0",
+    "postgres": "npm:postgres@^3.4.5",
+    "preact": "https://esm.sh/preact@10.19.6",
+    "preact/": "https://esm.sh/preact@10.19.6/",
+    "@preact/signals": "https://esm.sh/*@preact/signals@1.2.2",
+    "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.5.1",
+	"drizzle-kit": "npm:drizzle-kit@beta",
+    "drizzle-orm": "npm:drizzle-orm@beta",
+    "tailwindcss": "npm:tailwindcss@3.4.1",
+    "tailwindcss/": "npm:/tailwindcss@3.4.1/",
+    "tailwindcss/plugin": "npm:/tailwindcss@3.4.1/plugin.js",
+    "$std/": "https://deno.land/std@0.216.0/",
+    "pg": "npm:pg@8.11.3"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
+  },
+  "nodeModulesDir": true,
+  "unstable": [
+    "temporal"
+  ]
+}
+</file>
+
+<file path="routes/@[username]/inbox.ts">
+import { getLogger } from "@logtape/logtape";
+import federation from "../../federation/mod.ts";
+
+const logger = getLogger("pitch-connect");
+
+export const handler = async (req: Request) => {
+  try {
+    const activity = await req.json();
+    await federation.receive(activity); // dispatches to onActivity handlers
+    return new Response("OK", { status: 202 });
+  } catch (err) {
+    logger.error("Inbox error", err);
+    return new Response("Bad Request", { status: 400 });
+  }
+};
+</file>
+
+<file path="federation/mod.ts">
+import { createFederation, Person } from "@fedify/fedify";
+import { getLogger } from "@logtape/logtape";
+import { PostgresKvStore, PostgresMessageQueue } from "@fedify/postgres";
+import postgres from "postgres";
+import { db } from "../lib/db.ts";
+import { actors } from "../models/schema.ts";
+import { eq } from "drizzle-orm";
+
+const logger = getLogger("pitch-connect");
+
+const federation = createFederation({
+  kv: new PostgresKvStore(postgres(Deno.env.get("DATABASE_URL"))),
+  queue: new PostgresMessageQueue(postgres(Deno.env.get("DATABASE_URL"))),
+});
+
+federation.setActorDispatcher(
+  "/ap/actors/{identifier}",
+  async (ctx, identifier) => {
+    logger.debug("Dispatching actor request for identifier:", identifier);
+    const [actor] = await db.select().from(actors).where(
+      eq(actors.preferredUsername, identifier),
+    );
+    if (!actor) {
+      return new Person({
+        preferredUsername: identifier,
+        name: identifier,
+        id: ctx.getActorUri(identifier),
+        summary: identifier,
+      });
+    }
+
+    return new Person({
+      id: ctx.getActorUri(identifier),
+      preferredUsername: actor.preferredUsername,
+      name: actor.name ?? actor.preferredUsername,
+      inbox: actor.inbox,
+      outbox: actor.outbox,
+      summary: actor.summary,
+    });
+  },
+);
+
+export default federation;
 </file>
 
 </files>
