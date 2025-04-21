@@ -2,6 +2,7 @@
 import { pgTable, uuid, text, timestamp } from "drizzle-orm/pg-core";
 import { posts } from "./post.ts";
 import { accounts, accountStatusEnum } from "../db/schema/account.ts";
+import { signupRequests, signupRequestStateEnum } from "../db/schema/signup.ts";
 
 // Define actors table
 export const actors = pgTable("actors", {
@@ -15,4 +16,4 @@ export const actors = pgTable("actors", {
 });
 
 // Export all schema tables
-export { posts, accounts, accountStatusEnum };
+export { posts, accounts, accountStatusEnum, signupRequests, signupRequestStateEnum };
