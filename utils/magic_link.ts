@@ -1,6 +1,6 @@
 import { magicLinks } from "../db/schema/magic_link.ts";
 import { db } from "../lib/db.ts";
-import { eq } from "drizzle-orm";
+import { eq, sql, isNull } from "drizzle-orm";
 import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
 
 /**
@@ -55,9 +55,7 @@ export async function verifyMagicLink(token: string) {
   // Find all unexpired and unconsumed tokens
   const now = new Date();
   const activeTokens = await db.select().from(magicLinks).where(
-    (links) => {
-      return eq(links.consumedAt, null);
-    }
+    isNull(magicLinks.consumedAt)
   );
   
   // Check each token by comparing the hash

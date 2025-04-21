@@ -33,9 +33,7 @@ Deno.test({
     oneHourAgo.setHours(oneHourAgo.getHours() - 1);
     
     await db.delete(magicLinks).where(
-      (links) => {
-        return links.createdAt > oneHourAgo;
-      }
+      sql`created_at > ${oneHourAgo}`
     );
   },
   sanitizeResources: false,

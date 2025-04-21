@@ -23,6 +23,6 @@ export const magicLinks = pgTable("magic_links", {
   return {
     // Partial unique index to ensure only one active signup token per request
     requestTokenIdx: uniqueIndex("request_token_idx").on(table.requestId, table.type)
-      .where(`consumed_at IS NULL AND type = 'signup'`),
+      .where(sql`consumed_at IS NULL AND type = 'signup'`),
   };
 });
