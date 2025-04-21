@@ -1,7 +1,7 @@
 /** routes/sign/in/index.tsx */
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { h } from "preact";
-import { createMagicLink } from "../../../utils/magic_link.ts";
+import { createSignInLink } from "../../../utils/magic_link.ts";
 import { db } from "../../../lib/db.ts";
 import { accounts } from "../../../db/schema/account.ts";
 import { eq } from "drizzle-orm";
@@ -27,16 +27,12 @@ export const handler: Handlers<Data> = {
       .then(rows => rows[0] || null);
 
     if (account) {
-      // Generate a signin token
-      const token = await createMagicLink({
-        type: "signin",
-        accountId: account.id,
-        expiresInMinutes: 15, // Short expiry for security
-      });
+      // Generate a signin link
+      const signInUrl = await createSignInLink(account.id);
 
-      // In a real app, send an email with the token
+      // In a real app, send an email with the link
       console.log(`📧 Signin link for ${account.username} <${account.email}>:`);
-      console.log(`http://localhost:8000/sign/in/${token}`);
+      console.log(signInUrl.toString());
     }
 
     // Always redirect to the "sent" page, even if account not found

@@ -1,5 +1,6 @@
 import { magicLinks } from "../db/schema/magic_link.ts";
 import { db } from "../lib/db.ts";
+import { accounts } from "../db/schema/account.ts";
 import { eq, sql, isNull } from "drizzle-orm";
 import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
 
@@ -107,6 +108,47 @@ export async function verifySignupToken(token: string) {
   }
   
   return signupRequest;
+}
+
+/**
+ * Creates a sign-in link for an account
+ * @param accountId The ID of the account to create a sign-in link for
+ * @returns The absolute URL of the sign-in link
+ */
+export async function createSignInLink(accountId: string): Promise<URL> {
+  const token = await createMagicLink({
+    type: "signin",
+    accountId,
+    expiresInMinutes: 15, // 15-minute expiry for security
+  });
+  
+  const baseUrl = Deno.env.get("BASE_URL") || "http://localhost:8000";
+  return new URL(`/sign/in/${token}`, baseUrl);
+}
+
+/**
+ * Consumes a sign-in token and returns the associated account
+ * @param token The plain text token to consume
+ * @returns The account if valid, null otherwise
+ */
+export async function consumeSignInToken(token: string): Promise<any | null> {
+  const magicLink = await verifyMagicLink(token);
+  
+  if (!magicLink || magicLink.type !== "signin" || !magicLink.accountId) {
+    return null;
+  }
+  
+  // Get the account
+  const account = await db.select().from(accounts)
+    .where(eq(accounts.id, magicLink.accountId))
+    .limit(1)
+    .then(rows => rows[0] || null);
+  
+  if (!account) {
+    return null;
+  }
+  
+  return account;
 }
 
 /**

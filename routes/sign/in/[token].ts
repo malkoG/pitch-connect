@@ -1,8 +1,5 @@
 import { Handlers } from "$fresh/server.ts";
-import { verifyMagicLink } from "../../../utils/magic_link.ts";
-import { db } from "../../../lib/db.ts";
-import { accounts } from "../../../db/schema/account.ts";
-import { eq } from "drizzle-orm";
+import { consumeSignInToken } from "../../../utils/magic_link.ts";
 
 export const handler: Handlers = {
   async GET(req, ctx) {
@@ -12,26 +9,11 @@ export const handler: Handlers = {
       return new Response("Invalid token", { status: 400 });
     }
     
-    // Verify the token
-    const magicLink = await verifyMagicLink(token);
-    
-    if (!magicLink) {
-      return new Response("Invalid or expired token", { status: 400 });
-    }
-    
-    // Check if it's a signin token
-    if (magicLink.type !== "signin") {
-      return new Response("Invalid token type", { status: 400 });
-    }
-    
-    // Get the account
-    const account = await db.select().from(accounts)
-      .where(eq(accounts.id, magicLink.accountId!))
-      .limit(1)
-      .then(rows => rows[0] || null);
+    // Consume the token and get the account
+    const account = await consumeSignInToken(token);
     
     if (!account) {
-      return new Response("Account not found", { status: 400 });
+      return new Response("Invalid or expired token", { status: 400 });
     }
     
     // Log the successful signin
