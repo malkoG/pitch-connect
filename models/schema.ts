@@ -1,6 +1,7 @@
 // This file exports all schema definitions for drizzle-kit migrations
 import { pgTable, uuid, text, timestamp } from "drizzle-orm/pg-core";
 import { posts } from "./post.ts";
+import { accounts, accountStatusEnum } from "../db/schema/account.ts";
 
 // Define actors table
 export const actors = pgTable("actors", {
@@ -14,4 +15,4 @@ export const actors = pgTable("actors", {
 });
 
 // Export all schema tables
-export { posts };
+export { posts, accounts, accountStatusEnum };
