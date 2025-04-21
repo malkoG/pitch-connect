@@ -108,3 +108,28 @@ export async function verifySignupToken(token: string) {
   
   return signupRequest;
 }
+
+/**
+ * Verifies a signin token and returns the associated account
+ * @param token The plain text token to verify
+ * @returns The account if valid, null otherwise
+ */
+export async function verifySigninToken(token: string) {
+  const magicLink = await verifyMagicLink(token);
+  
+  if (!magicLink || magicLink.type !== "signin" || !magicLink.accountId) {
+    return null;
+  }
+  
+  // Get the account
+  const account = await db.select().from(accounts)
+    .where(eq(accounts.id, magicLink.accountId))
+    .limit(1)
+    .then(rows => rows[0] || null);
+  
+  if (!account) {
+    return null;
+  }
+  
+  return account;
+}
