@@ -10,9 +10,16 @@ import * as $_app from "./routes/_app.tsx";
 import * as $_middleware from "./routes/_middleware.ts";
 import * as $api_joke from "./routes/api/joke.ts";
 import * as $api_posts from "./routes/api/posts.ts";
+import * as $api_signin from "./routes/api/signin.ts";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
 import * as $pdf_preview from "./routes/pdf/preview.tsx";
+import * as $sign_in_token_ from "./routes/sign/in/[token].ts";
+import * as $sign_in_index from "./routes/sign/in/index.tsx";
+import * as $sign_in_sent from "./routes/sign/in/sent.tsx";
+import * as $sign_up_token_ from "./routes/sign/up/[token].tsx";
+import * as $sign_up_index from "./routes/sign/up/index.tsx";
+import * as $sign_up_sent from "./routes/sign/up/sent.tsx";
 import * as $Counter from "./islands/Counter.tsx";
 import * as $PdfViewerWithButtons from "./islands/PdfViewerWithButtons.tsx";
 import * as $PostForm from "./islands/PostForm.tsx";
@@ -29,9 +36,16 @@ const manifest = {
     "./routes/_middleware.ts": $_middleware,
     "./routes/api/joke.ts": $api_joke,
     "./routes/api/posts.ts": $api_posts,
+    "./routes/api/signin.ts": $api_signin,
     "./routes/greet/[name].tsx": $greet_name_,
     "./routes/index.tsx": $index,
     "./routes/pdf/preview.tsx": $pdf_preview,
+    "./routes/sign/in/[token].ts": $sign_in_token_,
+    "./routes/sign/in/index.tsx": $sign_in_index,
+    "./routes/sign/in/sent.tsx": $sign_in_sent,
+    "./routes/sign/up/[token].tsx": $sign_up_token_,
+    "./routes/sign/up/index.tsx": $sign_up_index,
+    "./routes/sign/up/sent.tsx": $sign_up_sent,
   },
   islands: {
     "./islands/Counter.tsx": $Counter,
