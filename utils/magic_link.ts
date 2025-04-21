@@ -83,3 +83,28 @@ export async function verifyMagicLink(token: string) {
   
   return null; // No matching token found
 }
+
+/**
+ * Verifies a signup token and returns the associated signup request
+ * @param token The plain text token to verify
+ * @returns The signup request if valid, null otherwise
+ */
+export async function verifySignupToken(token: string) {
+  const magicLink = await verifyMagicLink(token);
+  
+  if (!magicLink || magicLink.type !== "signup" || !magicLink.requestId) {
+    return null;
+  }
+  
+  // Get the signup request
+  const signupRequest = await db.select().from(signupRequests)
+    .where(eq(signupRequests.id, magicLink.requestId))
+    .limit(1)
+    .then(rows => rows[0] || null);
+  
+  if (!signupRequest || !signupRequest.invitationAccountId) {
+    return null;
+  }
+  
+  return signupRequest;
+}
