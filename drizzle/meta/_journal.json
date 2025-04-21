@@ -15,6 +15,13 @@
       "when": 1744757843256,
       "tag": "0001_last_valkyrie",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1745242707152,
+      "tag": "0002_tiny_dagger",
+      "breakpoints": true
     }
   ]
 }
