@@ -1,5 +1,6 @@
 import { Handlers } from "$fresh/server.ts";
 import { consumeSignInToken } from "../../../utils/magic_link.ts";
+import { createSession } from "../../../lib/accounts.ts";
 
 export const handler: Handlers = {
   async GET(req, ctx) {
@@ -19,10 +20,8 @@ export const handler: Handlers = {
     // Log the successful signin
     console.log(`✅ Signin completed for ${account.username} <${account.email}>`);
     
-    // Create a session (simplified for now)
-    // In a real app, you would use a proper session management system
-    const headers = new Headers();
-    headers.set("Set-Cookie", `session=${account.id}; Path=/; HttpOnly; SameSite=Strict`);
+    // Create a session and get headers with the session cookie
+    const headers = createSession(ctx, account);
     
     // Redirect to home page
     headers.set("Location", "/");

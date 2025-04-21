@@ -41,3 +41,23 @@ export async function completeSignup({
   
   return account;
 }
+
+/**
+ * Creates a session for the given account
+ * @param ctx The Fresh context
+ * @param account The account to create a session for
+ * @returns Headers with the session cookie
+ */
+export function createSession(ctx: any, account: any): Headers {
+  // In a real application, you would use a proper session management system
+  // with JWT or another secure token format
+  const headers = new Headers();
+  
+  // Set a secure, HTTP-only cookie
+  headers.set(
+    "Set-Cookie", 
+    `session=${account.id}; Path=/; HttpOnly; SameSite=Lax`
+  );
+  
+  return headers;
+}
