@@ -1,6 +1,15 @@
-import { PageProps } from "$fresh/server.ts";
+import { FreshContext, Handlers, PageProps } from "$fresh/server.ts";
 import { Head } from "$fresh/runtime.ts";
+import { getLogger } from "@logtape/logtape";
+import { db } from "../../lib/db.ts";
+import { accounts } from "../../db/schema/account.ts";
+import { actors } from "../../models/schema.ts";
+import { posts } from "../../models/schema.ts";
+import { eq, desc } from "drizzle-orm";
+import federation from "../../federation/mod.ts";
 import PostList from "../../islands/PostList.tsx";
+
+const logger = getLogger("pitch-connect");
 
 interface ProfileData {
   account: {
@@ -15,6 +24,77 @@ interface ProfileData {
     publishedAt: Date;
   }>;
 }
+
+export const handler: Handlers<ProfileData | null> = {
+  async GET(req: Request, ctx: FreshContext<any, ProfileData | null>) {
+    const { username } = ctx.params;
+    logger.debug("Request for user profile:", username);
+
+    const acceptHeader = req.headers.get("Accept") || "";
+    const wantsActivityJson =
+      acceptHeader.includes("application/activity+json") ||
+      acceptHeader.includes("application/ld+json");
+
+    if (wantsActivityJson) {
+      const [actor] = await db.select().from(actors).where(
+        eq(actors.preferredUsername, username),
+      );
+
+      if (!actor) {
+        return new Response("Actor not found", { status: 404 });
+      }
+
+      const url = new URL(req.url);
+      const host = url.hostname;
+      const actorUrl = `https://${host}/@${username}`;
+
+      return Response.json({
+        "@context": [
+          "https://www.w3.org/ns/activitystreams",
+          "https://w3id.org/security/v1",
+        ],
+        "id": actorUrl,
+        "type": "Person",
+        "preferredUsername": username,
+        "name": actor.name ?? actor.preferredUsername,
+        "summary": actor.summary || "",
+        "inbox": actor.inbox || `${actorUrl}/inbox`,
+        "outbox": actor.outbox || `${actorUrl}/outbox`,
+      }, {
+        headers: {
+          "Content-Type": "application/activity+json",
+          "Cache-Control": "max-age=3600",
+        },
+      });
+    }
+
+    const [accountData] = await db.select({
+        id: accounts.id,
+        username: accounts.username,
+        intro: accounts.intro,
+        createdAt: accounts.createdAt
+      })
+      .from(accounts)
+      .where(eq(accounts.username, username))
+      .limit(1);
+
+    if (!accountData) {
+      logger.warn("Account not found for username:", username);
+      return ctx.renderNotFound();
+    }
+
+    const userPosts = await db.select({
+        id: posts.id,
+        content: posts.content,
+        publishedAt: posts.publishedAt,
+      })
+      .from(posts)
+      .where(eq(posts.actorId, accountData.id))
+      .orderBy(desc(posts.publishedAt));
+
+    return ctx.render({ account: accountData, posts: userPosts });
+  },
+};
 
 export default function UserProfilePage({ data }: PageProps<ProfileData>) {
   const { account, posts } = data;
