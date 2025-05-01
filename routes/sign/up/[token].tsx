@@ -49,7 +49,7 @@ export default function SignupCompletePage({ data }) {
               name="email"
               value={request.email}
               disabled
-              class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm"
+              class="mt-1 block w-full rounded-md border-2 border-gray-300 bg-gray-100 shadow-sm"
             />
           </label>
         </div>
@@ -62,7 +62,7 @@ export default function SignupCompletePage({ data }) {
               name="username"
               value={request.username}
               disabled
-              class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm"
+              class="mt-1 block w-full rounded-md border-2 border-gray-300 bg-gray-100 shadow-sm"
             />
           </label>
         </div>
@@ -74,7 +74,7 @@ export default function SignupCompletePage({ data }) {
               type="password"
               name="password"
               required
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"
+              class="mt-1 block w-full rounded-md border-2 border-gray-400 shadow-sm focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"
             />
           </label>
         </div>

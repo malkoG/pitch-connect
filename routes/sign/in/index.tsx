@@ -54,7 +54,7 @@ export default function Page({ data }: PageProps<Data>) {
               type="email"
               name="email"
               value={defaultValues.email || ""}
-              class={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 ${errors.email ? 'border-red-500' : ''}`}
+              class={`mt-1 block w-full rounded-md border-2 border-gray-400 shadow-sm focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 ${errors.email ? 'border-red-500' : ''}`}
             />
           </label>
           {errors.email && <span class="text-red-500 text-sm mt-1">{errors.email}</span>}

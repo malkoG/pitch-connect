@@ -41,7 +41,7 @@ export default function Page({ data }: PageProps<Data>) {
               type="text"
               name="username"
               value={defaultValues.username || ""}
-              class={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 ${errors.username ? 'border-red-500' : ''}`}
+              class={`mt-1 block w-full rounded-md border-2 border-gray-400 shadow-sm focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 ${errors.username ? 'border-red-500' : ''}`}
             />
           </label>
           {errors.username && <span class="text-red-500 text-sm mt-1">{errors.username}</span>}
@@ -54,7 +54,7 @@ export default function Page({ data }: PageProps<Data>) {
               type="email"
               name="email"
               value={defaultValues.email || ""}
-              class={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 ${errors.email ? 'border-red-500' : ''}`}
+              class={`mt-1 block w-full rounded-md border-2 border-gray-400 shadow-sm focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 ${errors.email ? 'border-red-500' : ''}`}
             />
           </label>
           {errors.email && <span class="text-red-500 text-sm mt-1">{errors.email}</span>}
@@ -67,7 +67,7 @@ export default function Page({ data }: PageProps<Data>) {
               name="intro"
               rows={3}
               value={defaultValues.intro || ""}
-              class={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 ${errors.intro ? 'border-red-500' : ''}`}
+              class={`mt-1 block w-full rounded-md border-2 border-gray-400 shadow-sm focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 ${errors.intro ? 'border-red-500' : ''}`}
               placeholder="Tell us a bit about yourself and why you'd like to join..."
             ></textarea>
           </label>
