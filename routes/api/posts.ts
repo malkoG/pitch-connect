@@ -45,6 +45,7 @@ export const handler: Handlers = {
       return new Response("Unauthorized", { status: 401 });
     }
     // --- End Authentication Check ---
+    const body = await req.json();
     const content = body.content;
     if (typeof content !== "string" || content.trim() === "") {
       return new Response("Invalid content", { status: 400 });
