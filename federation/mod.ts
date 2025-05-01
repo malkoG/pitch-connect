@@ -10,8 +10,9 @@ import { getLogger } from "@logtape/logtape";
 import { PostgresKvStore, PostgresMessageQueue } from "@fedify/postgres";
 import postgres from "postgres";
 import { db } from "../lib/db.ts";
-import { actors } from "../models/schema.ts";
+import { accounts, actors } from "../models/schema.ts";
 import { eq } from "drizzle-orm";
+import { validateUuid } from "../models/uuid.ts";
 
 const logger = getLogger("pitch-connect");
 
@@ -109,25 +110,32 @@ federation
       }
 
       logger.debug("Dispatching actor request for identifier:", identifier);
-      const [actor] = await db.select().from(actors).where(
-        eq(actors.preferredUsername, identifier),
+      if (!validateUuid(identifier)) return null;
+      const accountList = await db.select().from(accounts).where(
+        eq(accounts.id, identifier),
       );
-      if (!actor) {
-        return new Person({
-          preferredUsername: identifier,
-          name: identifier,
-          id: ctx.getActorUri(identifier),
-          summary: identifier,
-        });
-      }
+
+      const account = accountList[0];
+
+      if (account == null) return null;
+
+      console.log({ account });
 
       return new Person({
         id: ctx.getActorUri(identifier),
-        preferredUsername: actor.preferredUsername,
-        name: actor.name ?? actor.preferredUsername,
-        inbox: actor.inbox,
-        outbox: actor.outbox,
-        summary: actor.summary,
+        preferredUsername: account.username,
+        name: account.username,
+        manuallyApprovesFollowers: false,
+        published: account.createdAt.toTemporalInstant(),
+        inbox: ctx.getInboxUri(identifier),
+        outbox: ctx.getOutboxUri(identifier),
+        endpoints: new Endpoints({
+          sharedInbox: ctx.getInboxUri(),
+        }),
+        icon: new Image({}),
+        following: ctx.getFollowingUri(identifier),
+        followers: ctx.getFollowersUri(identifier),
+        url: new URL(`/@${account.username}`, ctx.canonicalOrigin),
       });
     },
   )
