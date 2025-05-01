@@ -26,15 +26,21 @@ export const handler: Handlers = {
     }
 
     try {
-      const [account] = await db.select({ id: accounts.id, status: accounts.status })
+      const [account] = await db.select({
+        id: accounts.id,
+        status: accounts.status,
+      })
         .from(accounts)
         .where(eq(accounts.id, sessionId))
         .limit(1);
 
-      if (account && account.status === 'active') {
+      if (account && account.status === "active") {
         actorId = account.id;
       } else {
-        return new Response("Unauthorized: Invalid session or inactive account", { status: 401 });
+        return new Response(
+          "Unauthorized: Invalid session or inactive account",
+          { status: 401 },
+        );
       }
     } catch (error) {
       console.error("Session verification error in POST /api/posts:", error);
@@ -51,7 +57,8 @@ export const handler: Handlers = {
       return new Response("Invalid content", { status: 400 });
     }
 
-    const iri = `https://yourdomain/users/${actorId}/statuses/${crypto.randomUUID()}`;
+    const iri =
+      `https://yourdomain/users/${actorId}/statuses/${crypto.randomUUID()}`;
 
     const [post] = await db.insert(posts).values({
       actorId,
@@ -59,15 +66,15 @@ export const handler: Handlers = {
       iri,
     }).returning();
 
-    await federation.outbox.post(actorId, {
-      type: "Create",
-      object: {
-        type: "Note",
-        content: post.content,
-        published: post.publishedAt.toISOString(),
-        id: post.iri,
-      },
-    });
+    //await federation.outbox.post(actorId, {
+    //  type: "Create",
+    //  object: {
+    //    type: "Note",
+    //    content: post.content,
+    //    published: post.publishedAt.toISOString(),
+    //    id: post.iri,
+    //  },
+    //});
 
     return new Response("Created", { status: 201 });
   },
