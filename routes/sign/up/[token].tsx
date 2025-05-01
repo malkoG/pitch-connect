@@ -1,7 +1,9 @@
+import type { RequestContext } from "@fedify/fedify";
 import { Handlers } from "$fresh/server.ts";
 import { checkSignupTokenValidity, verifySignupToken } from "../../../utils/magic_link.ts";
 import { completeSignup, createSession } from "../../../lib/accounts.ts";
 import { h } from "preact";
+import { syncActorFromAccount } from "../../../models/actor.ts";
 
 export const handler: Handlers = {
   async GET(_, ctx) {
@@ -32,6 +34,8 @@ export const handler: Handlers = {
       console.error(`completeSignup failed for request ${request.id} after token verification.`);
       return new Response("An error occurred while activating your account.", { status: 500 });
     }
+
+	await syncActorFromAccount(ctx.state.fedCtx, account);
 
     const sessionHeaders = createSession(ctx, account);
     const responseHeaders = new Headers(sessionHeaders);
