@@ -90,8 +90,8 @@ federation
         return new Application({
           id: ctx.getActorUri(identifier),
           preferredUsername: identifier,
-          name: "Hackers' Pub",
-          summary: "An instance actor for Hackers' Pub.",
+          name: "Pitch Connect",
+          summary: "An instance actor for Pitch Connect",
           manuallyApprovesFollowers: true,
           inbox: ctx.getInboxUri(identifier),
           outbox: ctx.getOutboxUri(identifier),
