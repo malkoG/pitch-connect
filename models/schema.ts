@@ -21,6 +21,9 @@ import { Uuid } from "./uuid.ts";
 
 const currentTimestamp = sql`CURRENT_TIMESTAMP`;
 
+export type Account = typeof accounts.$inferSelect;
+export type NewAccount = typeof accounts.$inferInsert;
+
 const posts = pgTable("posts", {
   id: uuid("id").primaryKey().defaultRandom(),
   actorId: uuid("actor_id").notNull(),
@@ -95,8 +98,6 @@ export const actors = pgTable(
       .notNull()
       .default({}),
     summary: text("summary"),
-    inbox: text("inbox").notNull(),
-    outbox: text("outbox").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull()
       .defaultNow(),
     sensitive: boolean().notNull().default(false),
@@ -118,6 +119,9 @@ export const actors = pgTable(
     check("actor_username_check", sql`${table.username} NOT LIKE '%@%'`),
   ],
 );
+
+export type Actor = typeof actors.$inferSelect;
+export type NewActor = typeof actors.$inferInsert;
 
 // Export all schema tables
 export {
