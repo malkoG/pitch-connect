@@ -51,62 +51,91 @@ export async function createMagicLink(
 }
 
 /**
- * Verifies a magic link token and marks it as consumed if valid
- * @param token The plain text token to verify
- * @returns The magic link record if valid, null otherwise
+ * Finds a valid (unconsumed, unexpired) magic link matching the token hash WITHOUT consuming it.
+ * @param token The plain text token to check
+ * @returns The magic link record if valid and found, null otherwise.
  */
-export async function verifyMagicLink(token: string) {
-  // Find all unexpired and unconsumed tokens
+async function findValidMagicLinkByToken(token: string): Promise<any | null> {
   const now = new Date();
   const activeTokens = await db.select().from(magicLinks).where(
-    isNull(magicLinks.consumedAt),
+    isNull(magicLinks.consumedAt)
   );
 
-  // Check each token by comparing the hash
   for (const magicLink of activeTokens) {
     try {
       const isMatch = await bcrypt.compare(token, magicLink.tokenHash);
-
       if (isMatch) {
-        // Check if the token is expired
         if (magicLink.expiresAt < now) {
-          return null; // Token is expired
+          console.log(`Token ${token.substring(0, 6)}... found but expired.`);
+          return null;
         }
-
-        // Mark the token as consumed
-        await db.update(magicLinks)
-          .set({ consumedAt: now })
-          .where(eq(magicLinks.id, magicLink.id));
-
         return magicLink;
       }
     } catch (error) {
-      console.error("Error verifying token:", error);
+      console.error("Error comparing token hash:", error);
     }
   }
-
-  return null; // No matching token found
+  console.log(`No active token found matching ${token.substring(0, 6)}...`);
+  return null;
 }
 
 /**
- * Verifies a signup token and returns the associated signup request
- * @param token The plain text token to verify
- * @returns The signup request if valid, null otherwise
+ * Verifies a magic link token's validity WITHOUT consuming it.
+ * @param token The plain text token to check
+ * @returns The magic link record if valid, null otherwise
  */
-export async function verifySignupToken(token: string) {
-  const magicLink = await verifyMagicLink(token);
+export async function checkMagicLinkValidity(token: string) {
+  return await findValidMagicLinkByToken(token);
+}
+
+/**
+ * Verifies a magic link token AND consumes it if valid.
+ * @param token The plain text token to verify and consume
+ * @returns The magic link record if valid and consumed successfully, null otherwise
+ */
+export async function verifyAndConsumeMagicLink(token: string): Promise<any | null> {
+  const magicLink = await findValidMagicLinkByToken(token);
+
+  if (magicLink) {
+    const updateResult = await db.update(magicLinks)
+      .set({ consumedAt: new Date() })
+      .where(eq(magicLinks.id, magicLink.id))
+      .returning();
+
+    if (updateResult && updateResult.length > 0) {
+      return magicLink;
+    } else {
+      console.error(`Failed to consume token ID: ${magicLink.id}`);
+      return null;
+    }
+  }
+  return null;
+}
+
+/** @deprecated Prefer verifyAndConsumeMagicLink or checkMagicLinkValidity */
+export async function verifyMagicLink(token: string) {
+  return await verifyAndConsumeMagicLink(token);
+}
+
+/**
+ * Checks a signup token's validity WITHOUT consuming it.
+ * @param token The plain text token to check
+ * @returns The signup request if the token is valid, null otherwise
+ */
+export async function checkSignupTokenValidity(token: string) {
+  const magicLink = await checkMagicLinkValidity(token);
 
   if (!magicLink || magicLink.type !== "signup" || !magicLink.requestId) {
     return null;
   }
 
-  // Get the signup request
   const signupRequest = await db.select().from(signupRequests)
     .where(eq(signupRequests.id, magicLink.requestId))
     .limit(1)
     .then((rows) => rows[0] || null);
 
-  if (!signupRequest || !signupRequest.invitationAccountId) {
+  if (!signupRequest || signupRequest.state !== 'approved' || !signupRequest.invitationAccountId) {
+    console.log(`Signup request ${magicLink.requestId} not found, not approved, or not linked.`);
     return null;
   }
 
@@ -114,67 +143,87 @@ export async function verifySignupToken(token: string) {
 }
 
 /**
- * Creates a sign-in link for an account
- * @param accountId The ID of the account to create a sign-in link for
- * @returns The absolute URL of the sign-in link
+ * Verifies AND consumes a signup token.
+ * @param token The plain text token to verify and consume
+ * @returns The signup request if valid and consumed successfully, null otherwise
  */
+export async function verifySignupToken(token: string) {
+  const magicLink = await verifyAndConsumeMagicLink(token);
+
+  if (!magicLink || magicLink.type !== "signup" || !magicLink.requestId) {
+    return null;
+  }
+
+  const signupRequest = await db.select().from(signupRequests)
+    .where(eq(signupRequests.id, magicLink.requestId))
+    .limit(1)
+    .then((rows) => rows[0] || null);
+
+  if (!signupRequest || signupRequest.state !== 'approved' || !signupRequest.invitationAccountId) {
+    console.warn(`Consumed signup token ${token.substring(0,6)}... but associated request ${magicLink.requestId} is invalid/missing.`);
+    return null;
+  }
+
+  return signupRequest;
+}
+
+/**
+ * Checks a signin token's validity WITHOUT consuming it.
+ * @param token The plain text token to check
+ * @returns The account if the token is valid, null otherwise
+ */
+export async function checkSigninTokenValidity(token: string): Promise<any | null> {
+    const magicLink = await checkMagicLinkValidity(token);
+
+    if (!magicLink || magicLink.type !== "signin" || !magicLink.accountId) {
+        return null;
+    }
+
+    const account = await db.select().from(accounts)
+        .where(eq(accounts.id, magicLink.accountId))
+        .limit(1)
+        .then((rows) => rows[0] || null);
+
+    if (!account || account.status !== 'active') {
+        console.log(`Signin token valid but account ${magicLink.accountId} not found or not active.`);
+        return null;
+    }
+
+    return account;
+}
+
+/**
+ * Verifies AND consumes a signin token.
+ * @param token The plain text token to consume
+ * @returns The account if valid and consumed successfully, null otherwise
+ */
+export async function consumeSignInToken(token: string): Promise<any | null> {
+  const magicLink = await verifyAndConsumeMagicLink(token);
+
+  if (!magicLink || magicLink.type !== "signin" || !magicLink.accountId) {
+    return null;
+  }
+
+  const account = await db.select().from(accounts)
+    .where(eq(accounts.id, magicLink.accountId))
+    .limit(1)
+    .then((rows) => rows[0] || null);
+
+   if (!account || account.status !== 'active') {
+     console.warn(`Consumed signin token ${token.substring(0,6)}... but associated account ${magicLink.accountId} not found or not active.`);
+     return null;
+   }
+
+  return account;
+}
+
 export async function createSignInLink(accountId: string): Promise<URL> {
   const token = await createMagicLink({
     type: "signin",
     accountId,
-    expiresInMinutes: 15, // 15-minute expiry for security
+    expiresInMinutes: 15,
   });
 
   const baseUrl = Deno.env.get("BASE_URL") || "http://localhost:8000";
   return new URL(`/sign/in/${token}`, baseUrl);
-}
-
-/**
- * Consumes a sign-in token and returns the associated account
- * @param token The plain text token to consume
- * @returns The account if valid, null otherwise
- */
-export async function consumeSignInToken(token: string): Promise<any | null> {
-  const magicLink = await verifyMagicLink(token);
-
-  if (!magicLink || magicLink.type !== "signin" || !magicLink.accountId) {
-    return null;
-  }
-
-  // Get the account
-  const account = await db.select().from(accounts)
-    .where(eq(accounts.id, magicLink.accountId))
-    .limit(1)
-    .then((rows) => rows[0] || null);
-
-  if (!account) {
-    return null;
-  }
-
-  return account;
-}
-
-/**
- * Verifies a signin token and returns the associated account
- * @param token The plain text token to verify
- * @returns The account if valid, null otherwise
- */
-export async function verifySigninToken(token: string) {
-  const magicLink = await verifyMagicLink(token);
-
-  if (!magicLink || magicLink.type !== "signin" || !magicLink.accountId) {
-    return null;
-  }
-
-  // Get the account
-  const account = await db.select().from(accounts)
-    .where(eq(accounts.id, magicLink.accountId))
-    .limit(1)
-    .then((rows) => rows[0] || null);
-
-  if (!account) {
-    return null;
-  }
-
-  return account;
 }
