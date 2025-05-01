@@ -1,12 +1,12 @@
 import { Handlers } from "$fresh/server.ts";
-import { verifySignupToken } from "../../../utils/magic_link.ts";
+import { checkSignupTokenValidity, verifySignupToken } from "../../../utils/magic_link.ts";
 import { completeSignup } from "../../../lib/accounts.ts";
 import { h } from "preact";
 
 export const handler: Handlers = {
   async GET(_, ctx) {
     const { token } = ctx.params;
-    const request = await verifySignupToken(token);
+    const request = await checkSignupTokenValidity(token);
     if (!request) return ctx.renderNotFound();
     
     return ctx.render({ 
@@ -18,7 +18,11 @@ export const handler: Handlers = {
   async POST(req, ctx) {
     const { token } = ctx.params;
     const request = await verifySignupToken(token);
-    if (!request) return ctx.renderNotFound();
+
+    if (!request) {
+      console.log(`POST /sign/up/${token.substring(0,6)}... : Token invalid, expired, or already consumed.`);
+      return new Response("This signup link is invalid or has already been used.", { status: 400 });
+    }
     
     const form = await req.formData();
 
