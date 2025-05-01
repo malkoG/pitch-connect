@@ -1,12 +1,27 @@
 import { FreshContext, Handlers } from "$fresh/server.ts";
 import { getLogger } from "@logtape/logtape";
-
 import { db } from "../../lib/db.ts";
+import { accounts } from "../../db/schema/account.ts";
 import { actors } from "../../models/schema.ts";
-import { eq } from "drizzle-orm";
+import { posts } from "../../models/schema.ts";
+import { eq, desc } from "drizzle-orm";
 import federation from "../../federation/mod.ts";
 
 const logger = getLogger("pitch-connect");
+
+interface ProfileData {
+  account: {
+    id: string;
+    username: string;
+    intro: string | null;
+    createdAt: Date;
+  };
+  posts: Array<{
+    id: string;
+    content: string;
+    publishedAt: Date;
+  }>;
+}
 /**
  * Get an account by handle (username@domain)
  * @param handle The handle in the format username@domain
@@ -101,90 +116,72 @@ export const handler: Handlers = {
     logger.debug("Request for user:", username);
     console.log("Request for user:", username);
 
-    // Check if the client is requesting ActivityPub format
+    logger.debug("Request for user profile:", username);
+
+    // --- Handle ActivityPub Request ---
     const acceptHeader = req.headers.get("Accept") || "";
     const wantsActivityJson =
       acceptHeader.includes("application/activity+json") ||
       acceptHeader.includes("application/ld+json");
 
-    // Get the host from the request URL
-    const url = new URL(req.url);
-    const host = url.hostname;
-
-    // Construct the handle from the username and request host
-    const handle = `${username}@${host}`;
-
-    // Try to get the account by handle
-    let accountInfo = await getAccountByHandle(handle);
-
-    // If not found and federation is available, try to fetch from remote
-    if (!accountInfo && federation) {
-      const actorUrl = `https://${host}/@${username}`;
-      try {
-        // Call context.getActor(actorUrl)
-        const remoteActor = await federation;
-
-        // If an actor is returned, save it
-        if (remoteActor) {
-          await saveRemoteActor(remoteActor);
-          // Retry getting the account
-          accountInfo = await getAccountByHandle(handle);
-        }
-      } catch (error) {
-        console.error("Error fetching remote actor:", error);
-      }
-    }
-
-    // If we found the actor, use it
-    if (accountInfo && accountInfo.actor) {
-      const actor = accountInfo.actor;
-
-      // If client wants ActivityPub format or explicitly requests it
-      if (wantsActivityJson) {
-        // Get the host from the request URL
-        const url = new URL(req.url);
-        const host = url.hostname;
-
-        // Construct the ActivityPub actor representation
-        const actorUrl = `https://${host}/@${username}`;
-
-        return Response.json({
-          "@context": [
-            "https://www.w3.org/ns/activitystreams",
-            "https://w3id.org/security/v1",
-          ],
-          "id": actorUrl,
-          "type": "Person",
-          "preferredUsername": username,
-          "name": actor.name ?? actor.preferredUsername,
-          "summary": actor.summary || "",
-          "inbox": `${actorUrl}/inbox`,
-          "outbox": `${actorUrl}/outbox`,
-          "followers": `${actorUrl}/followers`,
-          "following": `${actorUrl}/following`,
-          "publicKey": {
-            "id": `${actorUrl}#main-key`,
-            "owner": actorUrl,
-          },
-        }, {
-          headers: {
-            "Content-Type": "application/activity+json",
-            "Cache-Control": "max-age=3600",
-          },
-        });
-      }
-
-      // For regular web browsers, render a profile page (to be implemented)
-      // This is a placeholder for now
-      return new Response(
-        `<html><body><h1>Profile of @${actor.preferredUsername}</h1></body></html>`,
-        {
-          headers: { "Content-Type": "text/html" },
-        },
+    if (wantsActivityJson) {
+      const [actor] = await db.select().from(actors).where(
+        eq(actors.preferredUsername, username),
       );
+
+      if (!actor) {
+        return new Response("Actor not found", { status: 404 });
+      }
+
+      const url = new URL(req.url);
+      const host = url.hostname;
+      const actorUrl = `https://${host}/@${username}`;
+
+      return Response.json({
+        "@context": [
+          "https://www.w3.org/ns/activitystreams",
+          "https://w3id.org/security/v1",
+        ],
+        "id": actorUrl,
+        "type": "Person",
+        "preferredUsername": username,
+        "name": actor.name ?? actor.preferredUsername,
+        "summary": actor.summary || "",
+        "inbox": actor.inbox || `${actorUrl}/inbox`,
+        "outbox": actor.outbox || `${actorUrl}/outbox`,
+      }, {
+        headers: {
+          "Content-Type": "application/activity+json",
+          "Cache-Control": "max-age=3600",
+        },
+      });
     }
 
-    // If we couldn't find the actor, return 404
-    return new Response("Actor not found", { status: 404 });
+    // --- Handle HTML Page Request ---
+    const [accountData] = await db.select({
+        id: accounts.id,
+        username: accounts.username,
+        intro: accounts.intro,
+        createdAt: accounts.createdAt
+      })
+      .from(accounts)
+      .where(eq(accounts.username, username))
+      .limit(1);
+
+    if (!accountData) {
+      logger.warn("Account not found for username:", username);
+      return ctx.renderNotFound();
+    }
+
+    const userPosts = await db.select({
+        id: posts.id,
+        content: posts.content,
+        publishedAt: posts.publishedAt,
+      })
+      .from(posts)
+      .where(eq(posts.actorId, accountData.id))
+      .orderBy(desc(posts.publishedAt));
+
+    return ctx.render({ account: accountData, posts: userPosts });
   },
 };
