@@ -8,7 +8,7 @@
 	"migrate": "deno run -A npm:drizzle-kit@beta migrate",
     "migrate:generate": "deno run -A npm:drizzle-kit@beta generate",
     "migrate:test": "deno run --env-file=.env.test -A npm:drizzle-kit@beta migrate",
-    "start": "deno run -A --watch=static/,routes/ dev.ts",
+    "start": "deno run -q -A --watch=static/,routes/ dev.ts",
     "build": "deno run -A dev.ts build",
     "preview": "deno run -A main.ts",
     "update": "deno run -A -r https://fresh.deno.dev/update .",
@@ -54,7 +54,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
   },
-  "nodeModulesDir": true,
+  "nodeModulesDir": "auto",
   "unstable": [
     "temporal"
   ]
