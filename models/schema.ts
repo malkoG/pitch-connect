@@ -14,13 +14,21 @@ import {
   unique,
   uuid,
 } from "drizzle-orm/pg-core";
-import { posts } from "./post.ts";
 import { accounts, accountStatusEnum } from "../db/schema/account.ts";
 import { signupRequests, signupRequestStateEnum } from "../db/schema/signup.ts";
 import { magicLinks, magicTokenTypeEnum } from "../db/schema/magic_link.ts";
 import { Uuid } from "./uuid.ts";
 
 const currentTimestamp = sql`CURRENT_TIMESTAMP`;
+
+const posts = pgTable("posts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  actorId: uuid("actor_id").notNull(),
+  content: text("content").notNull(),
+  publishedAt: timestamp("published_at", { withTimezone: true }).notNull()
+    .defaultNow(),
+  iri: text("iri").unique().notNull(),
+});
 
 const instances = pgTable(
   "instance",
