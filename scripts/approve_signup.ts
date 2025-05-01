@@ -10,7 +10,9 @@ const adminSecret = Deno.env.get("ADMIN_SECRET");
 if (adminSecret) {
   const providedSecret = Deno.env.get("ADMIN_SECRET_INPUT");
   if (providedSecret !== adminSecret) {
-    console.error("Error: Admin secret required. Set ADMIN_SECRET_INPUT environment variable.");
+    console.error(
+      "Error: Admin secret required. Set ADMIN_SECRET_INPUT environment variable.",
+    );
     Deno.exit(1);
   }
 }
@@ -24,7 +26,7 @@ if (!id) {
 const req = await db.select().from(signupRequests)
   .where(eq(signupRequests.id, id))
   .limit(1)
-  .then(rows => rows[0] || null);
+  .then((rows) => rows[0] || null);
 
 if (!req) {
   console.error("Signup request not found");
@@ -45,9 +47,9 @@ const [account] = await db.insert(accounts).values({
 
 // mark request approved and link to account
 await db.update(signupRequests)
-  .set({ 
-    state: "approved", 
-    invitationAccountId: account.id 
+  .set({
+    state: "approved",
+    invitationAccountId: account.id,
   })
   .where(eq(signupRequests.id, id));
 
@@ -61,7 +63,7 @@ const token = await createMagicLink({
 
 // Construct the full magic link URL
 const baseUrl = Deno.env.get("BASE_URL") || "http://localhost:8000";
-const magicLink = `${baseUrl}/sign/up/confirm?token=${token}`;
+const magicLink = `${baseUrl}/sign/up/${token}`;
 
 console.log("✅ Approved. Invitation link:");
 console.log(magicLink);
