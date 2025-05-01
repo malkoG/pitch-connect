@@ -1,6 +1,6 @@
 import { Handlers } from "$fresh/server.ts";
 import { checkSignupTokenValidity, verifySignupToken } from "../../../utils/magic_link.ts";
-import { completeSignup } from "../../../lib/accounts.ts";
+import { completeSignup, createSession } from "../../../lib/accounts.ts";
 import { h } from "preact";
 
 export const handler: Handlers = {
@@ -26,11 +26,20 @@ export const handler: Handlers = {
     
     const form = await req.formData();
 
-    await completeSignup({ request });
-    
-    return new Response(null, { 
-      status: 303, 
-      headers: { location: "/" } 
+    const account = await completeSignup({ request });
+
+    if (!account) {
+      console.error(`completeSignup failed for request ${request.id} after token verification.`);
+      return new Response("An error occurred while activating your account.", { status: 500 });
+    }
+
+    const sessionHeaders = createSession(ctx, account);
+    const responseHeaders = new Headers(sessionHeaders);
+    responseHeaders.set("Location", "/");
+
+    return new Response(null, {
+      status: 303,
+      headers: responseHeaders,
     });
   },
 };
