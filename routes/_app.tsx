@@ -1,12 +1,14 @@
 import { AppProps } from "$fresh/server.ts";
-import { Head } from "$fresh/runtime.ts";
 
 export default function App({ Component }: AppProps) {
   return (
     <>
-      <Head>
-        <title>My Slide Share</title>
-      </Head>
+      <head>
+		<meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Pitch Connect</title>
+        <link rel="stylesheet" href="/styles.css" />
+      </head>
       <header class="p-4 bg-gray-100 flex justify-between items-center">
         <h1 class="text-xl font-bold"><a href="/">Home</a></h1>
         <nav>
