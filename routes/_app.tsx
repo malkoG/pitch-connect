@@ -1,5 +1,7 @@
 import { AppProps } from "$fresh/server.ts";
 
+import UserMenu from "../islands/UserMenu.tsx";
+
 interface State {
   user: { id: string; username: string; email: string; } | null;
 }
@@ -18,11 +20,7 @@ export default function App({ Component, state }: AppProps<State>) {
         <nav>
           {state.user ? (
             <>
-              <a href={`/@${state.user.username}`} class="mr-4 hover:underline">
-                {state.user.username}
-              </a>
-              {/* Add Logout link/button here */}
-              {/* e.g., <a href="/sign/out" class="hover:underline">로그아웃</a> */}
+              <UserMenu user={state.user} />
             </>
           ) : (
             <a href="/sign/in" class="mr-4 hover:underline">로그인</a>
