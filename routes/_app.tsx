@@ -1,6 +1,10 @@
 import { AppProps } from "$fresh/server.ts";
 
-export default function App({ Component }: AppProps) {
+interface State {
+  user: { id: string; username: string; email: string; } | null;
+}
+
+export default function App({ Component, state }: AppProps<State>) {
   return (
     <>
       <head>
@@ -12,7 +16,17 @@ export default function App({ Component }: AppProps) {
       <header class="p-4 bg-gray-100 flex justify-between items-center">
         <h1 class="text-xl font-bold"><a href="/">Home</a></h1>
         <nav>
-          <a href="/sign/in" class="mr-4 hover:underline">로그인</a>
+          {state.user ? (
+            <>
+              <a href={`/@${state.user.username}`} class="mr-4 hover:underline">
+                {state.user.username}
+              </a>
+              {/* Add Logout link/button here */}
+              {/* e.g., <a href="/sign/out" class="hover:underline">로그아웃</a> */}
+            </>
+          ) : (
+            <a href="/sign/in" class="mr-4 hover:underline">로그인</a>
+          )}
           {/* (로그인 후엔 사용자 메뉴로 바꿔주세요) */}
         </nav>
       </header>
