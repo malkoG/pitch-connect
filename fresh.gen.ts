@@ -3,7 +3,7 @@
 // This file is automatically updated during development when running `dev.ts`.
 
 import * as $_username_inbox from "./routes/@[username]/inbox.ts";
-import * as $_username_index from "./routes/@[username]/index.ts";
+import * as $_username_index from "./routes/@[username]/index.tsx";
 import * as $_username_outbox from "./routes/@[username]/outbox.ts";
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
@@ -17,6 +17,7 @@ import * as $pdf_preview from "./routes/pdf/preview.tsx";
 import * as $sign_in_token_ from "./routes/sign/in/[token].ts";
 import * as $sign_in_index from "./routes/sign/in/index.tsx";
 import * as $sign_in_sent from "./routes/sign/in/sent.tsx";
+import * as $sign_out from "./routes/sign/out.ts";
 import * as $sign_up_token_ from "./routes/sign/up/[token].tsx";
 import * as $sign_up_index from "./routes/sign/up/index.tsx";
 import * as $sign_up_sent from "./routes/sign/up/sent.tsx";
@@ -24,12 +25,13 @@ import * as $Counter from "./islands/Counter.tsx";
 import * as $PdfViewerWithButtons from "./islands/PdfViewerWithButtons.tsx";
 import * as $PostForm from "./islands/PostForm.tsx";
 import * as $PostList from "./islands/PostList.tsx";
+import * as $UserMenu from "./islands/UserMenu.tsx";
 import { type Manifest } from "$fresh/server.ts";
 
 const manifest = {
   routes: {
     "./routes/@[username]/inbox.ts": $_username_inbox,
-    "./routes/@[username]/index.ts": $_username_index,
+    "./routes/@[username]/index.tsx": $_username_index,
     "./routes/@[username]/outbox.ts": $_username_outbox,
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
@@ -43,6 +45,7 @@ const manifest = {
     "./routes/sign/in/[token].ts": $sign_in_token_,
     "./routes/sign/in/index.tsx": $sign_in_index,
     "./routes/sign/in/sent.tsx": $sign_in_sent,
+    "./routes/sign/out.ts": $sign_out,
     "./routes/sign/up/[token].tsx": $sign_up_token_,
     "./routes/sign/up/index.tsx": $sign_up_index,
     "./routes/sign/up/sent.tsx": $sign_up_sent,
@@ -52,6 +55,7 @@ const manifest = {
     "./islands/PdfViewerWithButtons.tsx": $PdfViewerWithButtons,
     "./islands/PostForm.tsx": $PostForm,
     "./islands/PostList.tsx": $PostList,
+    "./islands/UserMenu.tsx": $UserMenu,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;

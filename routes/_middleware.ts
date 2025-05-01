@@ -46,4 +46,13 @@ async function sessionMiddleware(
 
 const fedifyHandler = integrateHandler(federation, () => undefined);
 
-export const handler = [sessionMiddleware, fedifyHandler];
+export const handler = [
+  sessionMiddleware,
+  async (req, ctx) => {
+    const fedCtx = federation.createContext(req, {});
+    ctx.state.fedCtx = fedCtx;
+    ctx.state.canonicalOrigin = fedCtx.canonicalOrigin;
+    return await ctx.next();
+  },
+  fedifyHandler,
+];
