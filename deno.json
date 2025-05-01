@@ -13,7 +13,8 @@
     "preview": "deno run -A main.ts",
     "update": "deno run -A -r https://fresh.deno.dev/update .",
     "signup:list": "deno run -A scripts/list_pending_signups.ts",
-    "signup:approve": "deno run -A scripts/approve_signup.ts"
+    "signup:approve": "deno run -A scripts/approve_signup.ts",
+    "generate-keypair": "deno run -A scripts/generate_keypair.ts"
   },
   "lint": {
     "rules": {
