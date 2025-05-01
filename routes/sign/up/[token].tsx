@@ -36,9 +36,9 @@ export default function SignupCompletePage({ data }) {
   const { request, token } = data;
   
   return (
-    <main class="prose mx-auto p-4">
-      <h1>Complete Your Registration</h1>
-      <p>Welcome, {request.username}! You're almost done.</p>
+    <main class="prose max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h1 class="text-2xl font-bold mb-4">Complete Your Registration</h1>
+      <p class="text-gray-700 mb-4">Welcome, {request.username}! You're almost done.</p>
       
       <form method="post" class="space-y-4">
         <div>
@@ -74,14 +74,14 @@ export default function SignupCompletePage({ data }) {
               type="password"
               name="password"
               required
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"
             />
           </label>
         </div>
         
         <input type="hidden" name="token" value={token} />
         
-        <button class="px-4 py-2 bg-blue-600 text-white rounded">
+        <button class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
           Complete Registration
         </button>
       </form>
