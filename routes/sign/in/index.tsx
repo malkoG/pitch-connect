@@ -64,6 +64,10 @@ export default function Page({ data }: PageProps<Data>) {
         
         <button class="px-4 py-2 bg-blue-600 text-white rounded">Send sign-in link</button>
       </form>
+
+      <p class="mt-6 text-center text-sm">
+        아직 계정이 없으신가요? <a href="/sign/up" class="text-blue-600 hover:underline">회원가입</a>
+      </p>
     </main>
   );
 }
