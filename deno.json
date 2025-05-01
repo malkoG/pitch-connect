@@ -33,6 +33,7 @@
   ],
   "imports": {
     "$fresh/": "https://deno.land/x/fresh@1.6.8/",
+    "@std/uuid": "jsr:@std/uuid@^1.0.6",
     "@fedify/fedify": "jsr:@fedify/fedify@^1.5.1",
     "@fedify/postgres": "jsr:@fedify/postgres@^0.2.2",
     "@hongminhee/x-forwarded-fetch": "jsr:@hongminhee/x-forwarded-fetch@^0.2.0",
