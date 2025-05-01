@@ -31,8 +31,8 @@ export const handler: Handlers<Data> = {
 export default function Page({ data }: PageProps<Data>) {
   const { errors = {}, defaultValues = {} } = data ?? {};
   return (
-    <main class="prose mx-auto p-4">
-      <h1>Request an account</h1>
+    <main class="prose max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h1 class="text-2xl font-bold mb-6 text-center">Request an account</h1>
       <form method="post" class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700">
@@ -41,10 +41,10 @@ export default function Page({ data }: PageProps<Data>) {
               type="text"
               name="username"
               value={defaultValues.username || ""}
-              class={`mt-1 block w-full rounded-md border-gray-300 shadow-sm ${errors.username ? 'border-red-500' : ''}`}
+              class={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 ${errors.username ? 'border-red-500' : ''}`}
             />
           </label>
-          {errors.username && <span class="text-red-500 text-sm">{errors.username}</span>}
+          {errors.username && <span class="text-red-500 text-sm mt-1">{errors.username}</span>}
         </div>
         
         <div>
@@ -54,10 +54,10 @@ export default function Page({ data }: PageProps<Data>) {
               type="email"
               name="email"
               value={defaultValues.email || ""}
-              class={`mt-1 block w-full rounded-md border-gray-300 shadow-sm ${errors.email ? 'border-red-500' : ''}`}
+              class={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 ${errors.email ? 'border-red-500' : ''}`}
             />
           </label>
-          {errors.email && <span class="text-red-500 text-sm">{errors.email}</span>}
+          {errors.email && <span class="text-red-500 text-sm mt-1">{errors.email}</span>}
         </div>
         
         <div>
@@ -67,19 +67,19 @@ export default function Page({ data }: PageProps<Data>) {
               name="intro"
               rows={3}
               value={defaultValues.intro || ""}
-              class={`mt-1 block w-full rounded-md border-gray-300 shadow-sm ${errors.intro ? 'border-red-500' : ''}`}
+              class={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 ${errors.intro ? 'border-red-500' : ''}`}
               placeholder="Tell us a bit about yourself and why you'd like to join..."
             ></textarea>
           </label>
-          {errors.intro && <span class="text-red-500 text-sm">{errors.intro}</span>}
+          {errors.intro && <span class="text-red-500 text-sm mt-1">{errors.intro}</span>}
         </div>
         
         {errors.general && <div class="text-red-500">{errors.general}</div>}
         
-        <button class="px-4 py-2 bg-blue-600 text-white rounded">Request access</button>
+        <button class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Request access</button>
       </form>
 
-      <p class="mt-6 text-center text-sm">
+      <p class="mt-6 text-center text-sm text-gray-600">
         이미 계정이 있으신가요? <a href="/sign/in" class="text-blue-600 hover:underline">로그인</a>
       </p>
     </main>
