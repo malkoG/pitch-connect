@@ -1,4 +1,5 @@
 import { type Context } from "@fedify/fedify";
+import * as vocab from "@fedify/fedify/vocab";
 import {
   type Account,
   type Actor,
@@ -62,4 +63,14 @@ export async function syncActorFromAccount(
     })
     .returning();
   return { ...rows[0], account, instance: instanceList[0] };
+}
+
+export function toRecipient(actor: Actor): vocab.Recipient {
+  return {
+    id: new URL(actor.iri),
+    inboxId: new URL(actor.inboxUrl),
+    endpoints: actor.sharedInboxUrl == null ? null : {
+      sharedInbox: new URL(actor.sharedInboxUrl),
+    },
+  };
 }
