@@ -3,8 +3,8 @@ import { integrateHandler } from "@fedify/fedify/x/fresh";
 import { MiddlewareHandlerContext } from "$fresh/server.ts";
 import { getCookies } from "$std/http/cookie.ts";
 import { db } from "../lib/db.ts";
-import { accounts } from "../db/schema/account.ts";
 import { eq } from "drizzle-orm";
+import { accounts } from "../models/schema.ts";
 interface State {
   user: { id: string; username: string; email: string } | null;
 }

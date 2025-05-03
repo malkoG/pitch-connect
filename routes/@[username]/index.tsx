@@ -2,11 +2,9 @@ import { FreshContext, Handlers, PageProps } from "$fresh/server.ts";
 import { Head } from "$fresh/runtime.ts";
 import { getLogger } from "@logtape/logtape";
 import { db } from "../../lib/db.ts";
-import { accounts } from "../../db/schema/account.ts";
-import { actors } from "../../models/schema.ts";
+import { accounts, actors } from "../../models/schema.ts";
 import { posts } from "../../models/schema.ts";
 import { eq, desc } from "drizzle-orm";
-import federation from "../../federation/mod.ts";
 import PostList from "../../islands/PostList.tsx";
 
 const logger = getLogger("pitch-connect");

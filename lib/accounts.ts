@@ -1,6 +1,5 @@
+import { accounts, signupRequests } from "../models/schema.ts";
 import { db } from "./db.ts";
-import { accounts } from "../db/schema/account.ts";
-import { signupRequests } from "../db/schema/signup.ts";
 import { eq } from "drizzle-orm";
 
 /**

@@ -3,8 +3,8 @@ import { Handlers, PageProps } from "$fresh/server.ts";
 import { h } from "preact";
 import { createSignInLink } from "../../../utils/magic_link.ts";
 import { db } from "../../../lib/db.ts";
-import { accounts } from "../../../db/schema/account.ts";
 import { eq } from "drizzle-orm";
+import { accounts } from "../../../models/schema.ts";
 
 interface Data {
   errors?: { email?: string; general?: string };

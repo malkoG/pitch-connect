@@ -1,6 +1,6 @@
 import { Handlers } from "$fresh/server.ts";
 import { db } from "../../lib/db.ts";
-import { accounts } from "../../db/schema/account.ts";
+import { accounts } from "../../models/schema.ts";
 import { createSignInLink } from "../../utils/magic_link.ts";
 import { eq } from "drizzle-orm";
 
@@ -19,14 +19,16 @@ export const handler: Handlers = {
       const account = await db.select().from(accounts)
         .where(eq(accounts.email, email))
         .limit(1)
-        .then(rows => rows[0] || null);
+        .then((rows) => rows[0] || null);
 
       if (account) {
         // Generate a signin link
         const signInUrl = await createSignInLink(account.id);
 
         // In a real app, send an email with the link
-        console.log(`📧 Signin link for ${account.username} <${account.email}>:`);
+        console.log(
+          `📧 Signin link for ${account.username} <${account.email}>:`,
+        );
         console.log(signInUrl.toString());
       }
 

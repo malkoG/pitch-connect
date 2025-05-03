@@ -1,8 +1,7 @@
 import { Handlers } from "$fresh/server.ts";
 import { db } from "../../lib/db.ts";
-import { posts } from "../../models/schema.ts";
+import { accounts, posts } from "../../models/schema.ts";
 import { desc, eq } from "drizzle-orm";
-import { accounts } from "../../db/schema/account.ts";
 import { getCookies } from "$std/http/cookie.ts";
 import federation from "../../federation/mod.ts";
 import { crypto } from "$std/crypto/mod.ts";

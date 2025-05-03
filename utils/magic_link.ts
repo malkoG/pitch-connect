@@ -1,9 +1,7 @@
-import { magicLinks } from "../db/schema/magic_link.ts";
-import { signupRequests } from "../db/schema/signup.ts";
 import { db } from "../lib/db.ts";
-import { accounts } from "../db/schema/account.ts";
 import { eq, isNull, sql } from "drizzle-orm";
 import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
+import { accounts, magicLinks, signupRequests } from "../models/schema.ts";
 
 /**
  * Options for creating a magic link
@@ -58,7 +56,7 @@ export async function createMagicLink(
 async function findValidMagicLinkByToken(token: string): Promise<any | null> {
   const now = new Date();
   const activeTokens = await db.select().from(magicLinks).where(
-    isNull(magicLinks.consumedAt)
+    isNull(magicLinks.consumedAt),
   );
 
   for (const magicLink of activeTokens) {
@@ -93,7 +91,9 @@ export async function checkMagicLinkValidity(token: string) {
  * @param token The plain text token to verify and consume
  * @returns The magic link record if valid and consumed successfully, null otherwise
  */
-export async function verifyAndConsumeMagicLink(token: string): Promise<any | null> {
+export async function verifyAndConsumeMagicLink(
+  token: string,
+): Promise<any | null> {
   const magicLink = await findValidMagicLinkByToken(token);
 
   if (magicLink) {
@@ -134,8 +134,13 @@ export async function checkSignupTokenValidity(token: string) {
     .limit(1)
     .then((rows) => rows[0] || null);
 
-  if (!signupRequest || signupRequest.state !== 'approved' || !signupRequest.invitationAccountId) {
-    console.log(`Signup request ${magicLink.requestId} not found, not approved, or not linked.`);
+  if (
+    !signupRequest || signupRequest.state !== "approved" ||
+    !signupRequest.invitationAccountId
+  ) {
+    console.log(
+      `Signup request ${magicLink.requestId} not found, not approved, or not linked.`,
+    );
     return null;
   }
 
@@ -159,8 +164,15 @@ export async function verifySignupToken(token: string) {
     .limit(1)
     .then((rows) => rows[0] || null);
 
-  if (!signupRequest || signupRequest.state !== 'approved' || !signupRequest.invitationAccountId) {
-    console.warn(`Consumed signup token ${token.substring(0,6)}... but associated request ${magicLink.requestId} is invalid/missing.`);
+  if (
+    !signupRequest || signupRequest.state !== "approved" ||
+    !signupRequest.invitationAccountId
+  ) {
+    console.warn(
+      `Consumed signup token ${
+        token.substring(0, 6)
+      }... but associated request ${magicLink.requestId} is invalid/missing.`,
+    );
     return null;
   }
 
@@ -172,24 +184,28 @@ export async function verifySignupToken(token: string) {
  * @param token The plain text token to check
  * @returns The account if the token is valid, null otherwise
  */
-export async function checkSigninTokenValidity(token: string): Promise<any | null> {
-    const magicLink = await checkMagicLinkValidity(token);
+export async function checkSigninTokenValidity(
+  token: string,
+): Promise<any | null> {
+  const magicLink = await checkMagicLinkValidity(token);
 
-    if (!magicLink || magicLink.type !== "signin" || !magicLink.accountId) {
-        return null;
-    }
+  if (!magicLink || magicLink.type !== "signin" || !magicLink.accountId) {
+    return null;
+  }
 
-    const account = await db.select().from(accounts)
-        .where(eq(accounts.id, magicLink.accountId))
-        .limit(1)
-        .then((rows) => rows[0] || null);
+  const account = await db.select().from(accounts)
+    .where(eq(accounts.id, magicLink.accountId))
+    .limit(1)
+    .then((rows) => rows[0] || null);
 
-    if (!account || account.status !== 'active') {
-        console.log(`Signin token valid but account ${magicLink.accountId} not found or not active.`);
-        return null;
-    }
+  if (!account || account.status !== "active") {
+    console.log(
+      `Signin token valid but account ${magicLink.accountId} not found or not active.`,
+    );
+    return null;
+  }
 
-    return account;
+  return account;
 }
 
 /**
@@ -209,10 +225,14 @@ export async function consumeSignInToken(token: string): Promise<any | null> {
     .limit(1)
     .then((rows) => rows[0] || null);
 
-   if (!account || account.status !== 'active') {
-     console.warn(`Consumed signin token ${token.substring(0,6)}... but associated account ${magicLink.accountId} not found or not active.`);
-     return null;
-   }
+  if (!account || account.status !== "active") {
+    console.warn(
+      `Consumed signin token ${
+        token.substring(0, 6)
+      }... but associated account ${magicLink.accountId} not found or not active.`,
+    );
+    return null;
+  }
 
   return account;
 }

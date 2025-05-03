@@ -13,17 +13,86 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import { accounts, accountStatusEnum } from "../db/schema/account.ts";
-import { signupRequests, signupRequestStateEnum } from "../db/schema/signup.ts";
-import { magicLinks, magicTokenTypeEnum } from "../db/schema/magic_link.ts";
 import { Uuid } from "./uuid.ts";
 
 const currentTimestamp = sql`CURRENT_TIMESTAMP`;
 
+const accountStatusEnum = pgEnum("account_status", [
+  "invited",
+  "active",
+  "suspended",
+  "deleted",
+]);
+
+const accounts = pgTable("accounts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  username: text("username").notNull().unique(),
+  intro: text("intro"),
+  email: text("email").notNull().unique(),
+  status: accountStatusEnum("status").notNull().default("invited"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull()
+    .defaultNow(),
+});
+
 export type Account = typeof accounts.$inferSelect;
 export type NewAccount = typeof accounts.$inferInsert;
+
+// Define signup request state enum
+const signupRequestStateEnum = pgEnum("signup_request_state", [
+  "pending",
+  "approved",
+  "rejected",
+  "completed",
+]);
+
+// Define signup_requests table
+const signupRequests = pgTable("signup_requests", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  username: text("username").notNull(),
+  intro: text("intro"),
+  email: text("email").notNull(),
+  state: signupRequestStateEnum("state").notNull().default("pending"),
+  invitationAccountId: uuid("invitation_account_id").references(() =>
+    accounts.id
+  ),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull()
+    .defaultNow(),
+});
+
+const magicTokenTypeEnum = pgEnum("magic_token_type", [
+  "signup",
+  "signin",
+]);
+
+const magicLinks = pgTable("magic_links", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  accountId: uuid("account_id").references(() => accounts.id),
+  requestId: uuid("request_id").references(() => signupRequests.id),
+  tokenHash: text("token_hash").notNull(),
+  type: magicTokenTypeEnum("type").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  consumedAt: timestamp("consumed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull()
+    .defaultNow(),
+}, (table) => {
+  return {
+    // Partial unique index to ensure only one active signup token per request
+    requestTokenIdx: uniqueIndex("request_token_idx").on(
+      table.requestId,
+      table.type,
+    )
+      .where(sql`consumed_at IS NULL AND type = 'signup'`),
+  };
+});
 
 const posts = pgTable("posts", {
   id: uuid("id").primaryKey().defaultRandom(),

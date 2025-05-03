@@ -1,7 +1,6 @@
 // bin: deno run -A scripts/approve_signup.ts <request-id>
 import { db } from "../lib/db.ts";
-import { signupRequests } from "../db/schema/signup.ts";
-import { accounts } from "../db/schema/account.ts";
+import { accounts, signupRequests } from "../models/schema.ts";
 import { createMagicLink } from "../utils/magic_link.ts";
 import { eq } from "drizzle-orm";
 
