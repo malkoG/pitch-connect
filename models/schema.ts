@@ -5,6 +5,7 @@ import {
   AnyPgColumn,
   boolean,
   check,
+  index,
   integer,
   json,
   pgEnum,
@@ -123,10 +124,37 @@ export const actors = pgTable(
 export type Actor = typeof actors.$inferSelect;
 export type NewActor = typeof actors.$inferInsert;
 
+const followings = pgTable(
+  "following",
+  {
+    iri: text().notNull().primaryKey(),
+    followerId: uuid("follower_id")
+      .$type<Uuid>()
+      .notNull()
+      .references(() => actors.id, { onDelete: "cascade" }),
+    followeeId: uuid("followee_id")
+      .$type<Uuid>()
+      .notNull()
+      .references(() => actors.id, { onDelete: "cascade" }),
+    accepted: timestamp({ withTimezone: true }),
+    created: timestamp({ withTimezone: true })
+      .notNull()
+      .default(currentTimestamp),
+  },
+  (table) => [
+    unique().on(table.followerId, table.followeeId),
+    index().on(table.followerId),
+  ],
+);
+
+export type Following = typeof followings.$inferSelect;
+export type NewFollowing = typeof followings.$inferInsert;
+
 // Export all schema tables
 export {
   accounts,
   accountStatusEnum,
+  followings,
   instances,
   magicLinks,
   magicTokenTypeEnum,

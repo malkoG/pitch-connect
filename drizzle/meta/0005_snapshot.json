@@ -1,6 +1,6 @@
 {
-  "id": "12a3b8e1-eaa0-4fd7-b264-fbdb0d1a09b5",
-  "prevId": "f50e0a66-122b-4ffa-b6c3-1aa90441be59",
+  "id": "d91bb411-f933-45b1-aa25-d0c93e3c2fcc",
+  "prevId": "12a3b8e1-eaa0-4fd7-b264-fbdb0d1a09b5",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -204,18 +204,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "inbox": {
-          "name": "inbox",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "outbox": {
-          "name": "outbox",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -365,6 +353,102 @@
           "value": "\"actors\".\"username\" NOT LIKE '%@%'"
         }
       },
+      "isRLSEnabled": false
+    },
+    "public.following": {
+      "name": "following",
+      "schema": "",
+      "columns": {
+        "iri": {
+          "name": "iri",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "follower_id": {
+          "name": "follower_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "followee_id": {
+          "name": "followee_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accepted": {
+          "name": "accepted",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created": {
+          "name": "created",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      },
+      "indexes": {
+        "following_follower_id_index": {
+          "name": "following_follower_id_index",
+          "columns": [
+            {
+              "expression": "follower_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "following_follower_id_actors_id_fk": {
+          "name": "following_follower_id_actors_id_fk",
+          "tableFrom": "following",
+          "tableTo": "actors",
+          "columnsFrom": [
+            "follower_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "following_followee_id_actors_id_fk": {
+          "name": "following_followee_id_actors_id_fk",
+          "tableFrom": "following",
+          "tableTo": "actors",
+          "columnsFrom": [
+            "followee_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "following_follower_id_followee_id_unique": {
+          "name": "following_follower_id_followee_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "follower_id",
+            "followee_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.instance": {
